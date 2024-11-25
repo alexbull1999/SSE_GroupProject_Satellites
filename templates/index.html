@@ -7,18 +7,22 @@
         Explore Our Satellites
     </h2>
     <div class="flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-12">
-        <!-- Moon Section -->
-        <div class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
+
+
+        <!-- HST Section -->
+        <a href="/satellite/20580" class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
             <img
-                src="https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg"
-                alt="The Moon"
+                src="https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg"
+                alt="The Hubble Space Telescope"
                 class="rounded-lg w-full h-48 object-cover mb-4"
             />
-            <h3 class="text-xl font-medium text-gray-200">The Moon</h3>
-            <p class="text-gray-400">Our closest celestial neighbor, Earth's natural satellite.</p>
-        </div>
+            <h3 class="text-xl font-medium text-gray-200">The Hubble Space Telescope</h3>
+            <p class="text-gray-400">A long telescope.</p>
+        </a>
+
+
         <!-- ISS Section -->
-        <div class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
+        <a href="/satellite/25544" class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
             <img
                 src="https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/e7e2/live/bea2c100-3539-11ef-a647-6fc50b20e53e.jpg"
                 alt="International Space Station"
@@ -26,27 +30,34 @@
             />
             <h3 class="text-xl font-medium text-gray-200">The ISS</h3>
             <p class="text-gray-400">A beacon of international cooperation orbiting above us.</p>
-        </div>
+        </a>
     </div>
 </section>
+
+
 
 <!-- Search Banners -->
 <section class="mt-12 space-y-6 flex flex-col items-center">
     <!-- Find Satellite Banner -->
     <div class="bg-gray-800 p-6 rounded-lg shadow-md w-4/5 sm:w-2/3 lg:w-1/2 text-center">
         <h3 class="text-lg md:text-xl font-medium text-gray-200">Find Satellite</h3>
-        <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
+        <form action="/satellite" method="post" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
             <input
                 type="text"
                 placeholder="Enter satellite name"
+                name = "name"
                 class="w-full px-3 py-2 rounded text-gray-800"
             />
             <button
                 class="w-full md:w-1/3 bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">
                 Search
             </button>
-        </div>
+        </form>
     </div>
+
+
+
+
     <!-- Add Project Banner -->
     <div class="bg-gray-800 p-6 rounded-lg shadow-md w-4/5 sm:w-2/3 lg:w-1/2 text-center">
         <h3 class="text-lg md:text-xl font-medium text-gray-200">Add Project</h3>
