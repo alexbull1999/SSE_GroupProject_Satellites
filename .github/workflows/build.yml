@@ -14,3 +14,18 @@ jobs:
         run: pip install flake8
       - name: Run flak8
         run: flake8 .
+
+  deploy-to-impaas:
+    needs: python-formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: ImPaaS-Deploy
+        uses: /impaas/impaas-deploy@v3
+        with:
+          app-name: track-to-the-future
+          deployment-token: ${{ secrets.IMPAAS_DEPLOY_TOKEN }}
+          method: PLATFORM
+
+
