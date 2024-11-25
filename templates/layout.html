@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track To The Future</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Default black background */
+        body {
+            background-color: black;
+        }
+    </style>
+</head>
+<body class="text-white font-sans">
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-900 min-h-screen p-4">
+            <h2 class="text-xl font-semibold text-indigo-400 mb-4">Current Projects</h2>
+            <details class="bg-gray-800 rounded-lg p-3">
+                <summary class="cursor-pointer text-gray-300 font-medium">
+                    Projects
+                </summary>
+                <ul class="mt-2 space-y-2">
+                    <!-- Empty for now -->
+                    <li class="text-gray-400 italic">No projects yet.</li>
+                </ul>
+            </details>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1">
+            <!-- Header Section -->
+            <header class="text-center p-6">
+                <h1 class="text-4xl md:text-6xl font-bold text-indigo-500">
+                    Track To The Future
+                </h1>
+                <p class="mt-4 text-lg md:text-xl">
+                    Explore the cosmos with us!
+                </p>
+            </header>
+
+            <!-- Main Content Placeholder -->
+            <main>
+                {% block content %}
+                {% endblock %}
+            </main>
+
+            <!-- Footer Section -->
+            <footer class="mt-12 p-4 bg-gray-900 text-center">
+                <p class="text-sm text-gray-400">
+                    Developed by Alex, Rob, Sermila and Tim © 2024
+                </p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>
