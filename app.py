@@ -10,13 +10,14 @@ all_satellites = [
     {
         "id": "20580",
         "name": "Hubble Space Telescope",
-    }
+    },
 ]
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/satellite", methods=["POST"])
 def satellite():
@@ -26,8 +27,6 @@ def satellite():
             id = satellite["id"]
             return render_template("satellite.html", id=id)
     return "404 Not Found", 404
-
-
 
 
 def process_query(query):
