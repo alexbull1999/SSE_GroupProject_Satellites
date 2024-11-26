@@ -24,8 +24,7 @@ def satellite():
     input_satellite = request.form.get("name")
     for satellite in all_satellites:
         if satellite["name"] == input_satellite:
-            id = satellite["id"]
-            return render_template("satellite.html", id=id)
+            return render_template("satellite.html", satellite=satellite)
     return "404 Not Found", 404
 
 
