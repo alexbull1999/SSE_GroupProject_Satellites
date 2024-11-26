@@ -5,10 +5,13 @@
   <title></title>
 </head>
 <body>
-<h1> {{ satellite.name }} Table </h1>
+<h1> <!--- {{ satellite.name }} ---> Table </h1>
 <ul>
-        <li>Name: {{ satellite.name }}</li>
-        <li>NORAD ID: {{ satellite.id }}</li>
+    <li>{{ satellite }}</li>
+      <!---  <li>Name: {{ satellite["name"] }}</li>
+        <li>NORAD ID: {{ satellite["satelliteId"] }}</li>
+        <li>Line 1: {{ satellite["line1"] }}</li>
+        <li>Line 2: {{ satellite["line2"] }}</li> --->
     </ul>
 </body>
 </html>
