@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 import requests
 
 
@@ -27,7 +27,9 @@ def satellite():
     for satellite in all_satellites:
         if satellite["name"] == input_satellite:
             id = satellite["id"]
-            url = f"https://api.n2yo.com/rest/v1/satellite/tle/{id}&apiKey=LMFEWE-UWEWBT-WF7CWC-5DK0"
+            start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
+            end_url = "&apiKey=LMFEWE-UWEWBT-WF7CWC-5DK0"
+            url = f"{start_url}{id}{end_url}"
             response = requests.get(url)
             if response.status_code == 200:
                 satellite_data = response.json()
