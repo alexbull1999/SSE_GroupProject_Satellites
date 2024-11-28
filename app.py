@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request
 import requests
+from database import init_db, get_engine
+from models import satelliteTable
 
 
 app = Flask(__name__)
@@ -56,10 +58,4 @@ def process_query(query):
         return "Moon made of cheese"
 
 
-# url = f"https://tle.ivanstanojevic.me/api/tle/{id}"
-# data = []
-# response = requests.get(url)
-# if response.status_code == 200:
-# data = response.json()
 
-#       return render_template("satellite.html", satellite=satellite_data)
