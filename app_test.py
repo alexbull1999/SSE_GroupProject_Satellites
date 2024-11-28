@@ -1,9 +1,7 @@
 import pytest
-
 from app import process_query
-
 from app import app
-import json
+#import json
 
 
 def test_knows_about_moon():
@@ -46,7 +44,6 @@ def test_invalid_search(client):
 
 def test_clickable_satellite(client):
     """test the clickable satellite on landing page"""
-    data = {"name": "Hubble Space Telescope"}
     response = client.get("/satellite/20580")
     assert response.status_code == 200
     # UPDATE HST TO MATCH NEW HTML PAGE
