@@ -57,6 +57,7 @@ def process_query(query):
     if query.lower() == "moon":
         return "Moon made of cheese"
 
+
 # function to mock test api
 def get_satellite_data(satellite_id):
     start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
@@ -68,5 +69,3 @@ def get_satellite_data(satellite_id):
         # change to return to the render template satellite.html
     else:
         return None
-
-

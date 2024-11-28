@@ -2,11 +2,11 @@ from sqlalchemy import Table, Column, Integer, String, ForeignKey, MetaData
 
 metadata = MetaData()
 
-#define satellite table
+# define satellite table
 
 satelliteTable = Table(
-    'satellite',
+    "satellite",
     metadata,
-    Column('id', Integer, primary_key=True),
-    Column('name', String(255), nullable=False),
+    Column("id", Integer, primary_key=True),
+    Column("name", String(255), nullable=False),
 )
