@@ -16,14 +16,14 @@
     <div class="flex">
         <!-- Sidebar -->
         <aside class="w-64 bg-gray-900 min-h-screen p-4">
-            <h2 class="text-xl font-semibold text-indigo-400 mb-4">Current Projects</h2>
+            <h2 class="text-xl font-semibold text-indigo-400 mb-4">Current Satellites Tracked</h2>
             <details class="bg-gray-800 rounded-lg p-3">
                 <summary class="cursor-pointer text-gray-300 font-medium">
                     Projects
                 </summary>
                 <ul class="mt-2 space-y-2">
                     <!-- Empty for now -->
-                    <li class="text-gray-400 italic">No projects yet.</li>
+                    <li class="text-gray-400 italic">No satellites being tracked - log in to track a satellite.</li>
                 </ul>
             </details>
         </aside>
@@ -54,5 +54,9 @@
             </footer>
         </div>
     </div>
+
+    <!-- JavaScript inclusion -->
+    <!-- Include external or internal JavaScript file -->
+    <script src="{{ url_for("static", filename="js/account.js") }}"></script>
 </body>
 </html>
