@@ -49,17 +49,19 @@ def test_clickable_satellite(client):
     # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
 
+
 @patch("requests.get")
 def test_api_satellite(mock_get):
-    """Mock Test the N2Y0 API """
-    #set up the mock to return a fake response
+    """Mock Test the N2Y0 API"""
+    # set up the mock to return a fake response
     mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = {"satname": "HST", "satid": 20580}
+    mock_get.return_value.json.return_value = {
+        "satname": "HST",
+        "satid": 20580,
+    }
 
-    #call the function under test
+    # call the function under test
     result = get_satellite_data(20580)
 
     assert result["satname"] == "HST"
     assert result["satid"] == 20580
-
-
