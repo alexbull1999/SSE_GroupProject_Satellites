@@ -3,7 +3,6 @@ from app import process_query
 from app import app
 
 
-
 def test_knows_about_moon():
     assert process_query("moon") == "Moon made of cheese"
 
@@ -48,4 +47,3 @@ def test_clickable_satellite(client):
     assert response.status_code == 200
     # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
-
