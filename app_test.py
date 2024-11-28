@@ -1,7 +1,6 @@
 import pytest
 from app import process_query, app, get_satellite_data
 from unittest.mock import patch
-import json
 
 
 def test_knows_about_moon():
