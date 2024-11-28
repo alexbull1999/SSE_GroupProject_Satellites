@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request
 import requests
-from database import init_db, get_engine
-from models import satelliteTable
 
 
 app = Flask(__name__)
