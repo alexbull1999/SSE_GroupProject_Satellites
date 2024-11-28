@@ -1,7 +1,7 @@
 import pytest
 from app import process_query
 from app import app
-#import json
+
 
 
 def test_knows_about_moon():
@@ -48,3 +48,4 @@ def test_clickable_satellite(client):
     assert response.status_code == 200
     # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
+
