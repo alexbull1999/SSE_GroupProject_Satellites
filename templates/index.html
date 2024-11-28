@@ -41,18 +41,62 @@
     <!-- Find Satellite Banner -->
     <div class="bg-gray-800 p-6 rounded-lg shadow-md w-4/5 sm:w-2/3 lg:w-1/2 text-center">
         <h3 class="text-lg md:text-xl font-medium text-gray-200">Find Satellite</h3>
-        <form action="/satellite" method="post" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
+        <form action="/satellite" method="GET" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
             <input
                 type="text"
                 placeholder="Enter satellite name"
                 name = "name"
+                autocomplete = "off"
                 class="w-full px-3 py-2 rounded text-gray-800"
             />
+            <div class="suggestions" id="suggestions">
+            </div>
             <button
                 class="w-full md:w-1/3 bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">
                 Search
             </button>
         </form>
+
+        <script>
+            $(document).ready(function () {
+                const input = $('#name');
+                const suggestionsBox = $('#suggestions');
+
+                input.on('input', function () {
+                    const query = $(this).val();
+
+                    if (query.length < 1) {
+                        suggestionsBox.hide();
+                        return;
+                    }
+
+                    $.get('/suggest', { q: query }, function (data) {
+                        suggestionsBox.empty();
+                        if (data.length > 0) {
+                            data.forEach(name => {
+                                suggestionsBox.append('<div>${name}</div>')
+                            });
+                            suggestionsBox.show();
+                        } else {
+                            suggestionsBox.hide();
+                        }
+                    });
+                });
+
+                // Handle click on a suggestion
+                suggestionBox.on('click', 'div', function () {
+                    input.val($(this).text());
+                    suggestionsBox.hide();
+                });
+
+                // Hide suggestions when clicking outside
+                $(document).on('click', function (e) {
+                    if (!$(e.target).closest('#name, #suggestions').length) {
+                        suggestionsBox.hide();
+                    }
+                });
+            });
+        </script>
     </div>
 
 

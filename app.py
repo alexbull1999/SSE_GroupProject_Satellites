@@ -1,8 +1,12 @@
 from flask import Flask, render_template, request
 import requests
+from sqlalchemy import select
+from database import get_engine
+from models import satelliteTable
 
 
 app = Flask(__name__)
+engine = get_engine()
 
 all_satellites = [
     {
@@ -67,3 +71,21 @@ def get_satellite_data(satellite_id):
         # change to return to the render template satellite.html
     else:
         return None
+
+#route to implement the suggested search in index.html
+@app.route('/suggest', methods=['GET'])
+def suggest():
+    query = request.args.get("q", "") #Get the user's input from query string
+    suggestions = []
+
+    #Query database for matching satellite names
+    with engine.connect() as connection:
+        result = connection.execute(
+            select(satelliteTable.c.name).where(
+                satelliteTable.c.name.ilike(f"%{query}%")
+            )
+        )
+        suggestions = [row['name'] for row in result]
+
+    return jsonify(suggestions)
+
