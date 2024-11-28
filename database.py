@@ -9,25 +9,22 @@ DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 
 engine = create_engine(DATABASE_URL, echo=True)  # echo=True for logging
 
-
 def get_engine():
     """Returns database engine"""
     return engine
-
 
 def init_db():
     """Initializes the database by creating all tables defined in the metadata"""
     metadata.create_all(bind=engine)
 
-
 # Use satelliteTable defined in models
-
 
 def read_and_insert_csv(file_path):
     """Reads a csv file and inserts selected columns into the database"""
     # Read the CSV file using Polars
     schema_overrides = {
-        "MEAN_MOTION_DDOT": pl.Float64,  # treat scientific notation as a float to stop errors
+        "MEAN_MOTION_DDOT": pl.Float64,
+        # treat scientific notation as a float to stop errors
     }
 
     df = pl.read_csv(file_path, schema_overrides=schema_overrides)
@@ -56,12 +53,10 @@ def read_and_insert_csv(file_path):
             transaction.rollback()
             raise e
 
-
 def process_multiple_csv(files):
     """Processes multiple csv files and inserts data into database"""
     for file in files:
         read_and_insert_csv(file)
-
 
 if __name__ == "__main__":
     csv_files = [
