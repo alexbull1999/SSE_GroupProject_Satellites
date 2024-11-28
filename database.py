@@ -62,6 +62,7 @@ def process_multiple_csv(files):
     for file in files:
         read_and_insert_csv(file)
 
+
 if __name__ == "__main__":
     csv_files = [
         "active1.csv",
