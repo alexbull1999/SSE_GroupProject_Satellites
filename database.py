@@ -9,16 +9,19 @@ DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 
 engine = create_engine(DATABASE_URL, echo=True)  # echo=True for logging
 
+
 def get_engine():
     """Returns database engine"""
     return engine
 
+
 def init_db():
-    """Initializes the database by creating all tables defined in the metadata"""
+    """Initializes the database by creating all tables defined
+    in the metadata"""
     metadata.create_all(bind=engine)
 
-# Use satelliteTable defined in models
 
+# Use satelliteTable defined in models
 def read_and_insert_csv(file_path):
     """Reads a csv file and inserts selected columns into the database"""
     # Read the CSV file using Polars
@@ -52,6 +55,7 @@ def read_and_insert_csv(file_path):
         except Exception as e:
             transaction.rollback()
             raise e
+
 
 def process_multiple_csv(files):
     """Processes multiple csv files and inserts data into database"""
