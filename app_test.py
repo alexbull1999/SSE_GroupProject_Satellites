@@ -100,8 +100,8 @@ def sample_csv(tmp_path):
     csv_path = tmp_path / "sample.csv"
     df = pl.DataFrame(
         {
-            "NORAD Catalog Number": [25544, 43205],
-            "Name": ["ISS (ZARYA)", "STARLINK-1"],
+            "NORAD_CAT_ID": [25544, 43205],
+            "OBJECT_NAME": ["ISS (ZARYA)", "STARLINK-1"],
         }
     )
     df.write_csv(csv_path)
