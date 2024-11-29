@@ -55,8 +55,22 @@
         </form>
     </div>
 
-
-
+    <!-- Find Satellite by Country -->
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md w-4/5 sm:w-2/3 lg:w-1/2 text-center">
+        <h3 class="text-lg md:text-xl font-medium text-gray-200">Enter a Country</h3>
+        <form action="/country" method="post" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
+            <input
+                type="text"
+                placeholder="Enter country name"
+                name="country"
+                class="w-full px-3 py-2 rounded text-gray-800"
+            />
+            <button
+                class="w-full md:w-1/3 bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">
+                Search
+            </button>
+        </form>
+    </div>
 
     <!-- Add Project Banner -->
     <div class="bg-gray-800 p-6 rounded-lg shadow-md w-4/5 sm:w-2/3 lg:w-1/2 text-center">

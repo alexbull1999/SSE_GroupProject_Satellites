@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import requests
-
-
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 app = Flask(__name__)
 
 all_satellites = [
@@ -15,7 +15,14 @@ all_satellites = [
     },
 ]
 
+# Satellite positions try
+satellite_positions = [
+    {"id": "25544", "name": "International Space Station", "lat": 28.5, "lng": 77.2},
+    {"id": "20580", "name": "Hubble Space Telescope", "lat": 40.7, "lng": -74.0},
+    {"id": "12345", "name": "Example Satellite", "lat": -25.5, "lng": 134.0},
+]
 
+geolocator =Nominatim(user_agent="satellite_app")
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -40,6 +47,71 @@ def satellite():
 def process_query(query):
     if query.lower() == "moon":
         return "Moon made of cheese"
+
+
+N2YO_API_BASE = "https://api.n2yo.com/rest/v1/satellite/"
+N2YO_API_KEY = "LMFEWE-UWEWBT-WF7CWC-5DK0"
+def get_satellite_position(satid):
+    url = "{N2YO_API_KEY}positions/{satid}/0/0/0/1&apiKey={N2YO_API_KEY}"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            position_data = response.json()
+            if "positions" in position_data and position_data["positions"]:
+                pos = position_data["positions"][0]
+                return pos.get("satlatitude"), pos.get("satlongitude")
+
+    except requests.exceptions.RequestException as e:
+        print("Error fetching satellite position: {e}")
+    return None, None
+
+def get_country_from_coordinates(lat, lng):
+    try:
+        location = geolocator.reverse((lat, lng), exactly_one=True)
+        if location:
+            address = location.raw.get('address', {})
+            return address.get('country', None)
+    except (GeocoderTimedOut, GeocoderServiceError) as e:
+        print("Geocoding error: {e}")
+        return None
+
+
+@app.route("/country", methods=["POST"])
+def get_satellites_over_country():
+
+    input_country =  request.form.get("country")
+
+    if not input_country:
+        return jsonify({"error": "Please specify a country."}), 400
+
+    satellites_over_country = []
+
+
+    for satellite in all_satellites:
+        satid = satellite["id"]
+        sat_lat, sat_lng = get_satellite_position(satid)
+
+        if sat_lat is not None and sat_lng is not None:
+            satellite_country = get_country_from_coordinates(sat_lat, sat_lng)
+            if satellite_country and satellite_country.lower() == input_country.lower():
+                satellites_over_country.append({
+                        "id": satellite["id"],
+                        "name": satellite["name"],
+                        "latitude": sat_lat,
+                        "longitude": sat_lng
+                    })
+
+    if satellites_over_country:
+        return jsonify({
+            "country": input_country,
+            "satellites": satellites_over_country
+        })
+
+    return jsonify({
+        "country": input_country,
+        "satellites": [],
+        "message": "No satellites over this country."
+    })
 
 
 # url = f"https://tle.ivanstanojevic.me/api/tle/{id}"
