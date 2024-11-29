@@ -46,5 +46,7 @@ jobs:
           app-name: track-to-the-future
           deployment-token: ${{ secrets.IMPAAS_DEPLOY_TOKEN }}
           method: PLATFORM
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
 
 
