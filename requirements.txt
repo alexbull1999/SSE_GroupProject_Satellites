@@ -9,6 +9,8 @@ exceptiongroup==1.2.2
 flake8==7.1.1
 Flask==3.1.0
 Flask-SQLAlchemy==3.1.1
+geographiclib==2.0
+geopy==2.4.1
 greenlet==3.1.1
 idna==3.10
 iniconfig==2.0.0
@@ -25,6 +27,7 @@ pluggy==1.5.0
 polars==1.14.0
 psycopg2-binary==2.9.10
 pycodestyle==2.12.1
+pycountry==24.6.1
 pyephem==9.99
 pyflakes==3.2.0
 pytest==8.3.3

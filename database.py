@@ -1,5 +1,6 @@
-from sqlalchemy import create_engine
-from models import satellite_table, Base
+from sqlalchemy import create_engine, insert
+from sqlalchemy.orm import sessionmaker
+from models import satellite_table, Base, country_table
 import polars as pl
 import sqlite3
 
@@ -8,6 +9,7 @@ DATABASE_FILE = "app_database.db"  # SQLite database file name
 DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 
 engine = create_engine(DATABASE_URL, echo=True)  # echo=True for logging
+Session = sessionmaker(bind=engine)
 
 
 def get_engine(database_url=None):
@@ -22,7 +24,7 @@ def init_db(database_url=None):
     Base.metadata.create_all(bind=engine)
 
 
-# Use satelliteTable defined in models
+# Use satellite_table defined in models
 def read_and_insert_csv(file_path, engine):
     """Reads a csv file and inserts selected columns into the database"""
     # Read the CSV file using Polars
@@ -64,7 +66,48 @@ def process_multiple_csv(files):
         read_and_insert_csv(file, engine)
 
 
+def find_satellites_by_name(search_term):
+    connection = sqlite3.connect("app_database.db")
+    cursor = connection.cursor()
+    query = "SELECT * FROM satellite WHERE name LIKE ? LIMIT 5"
+    cursor.execute(query, ("%" + search_term + "%",))  # Match partial input
+    results = cursor.fetchall()
+    connection.close()
+    return results
+
+
+def populate_country_table(csv_file_path, engine):
+    """Populates country table with country names and coordinates"""
+    try:
+        #read csv into polars dataframe
+        country_df = pl.read_csv(csv_file_path)
+
+        #select and map required columns
+        countries = [
+            {
+                "country": row["country"],
+                "latitude": row["latitude"],
+                "longitude": row["longitude"],
+                "name": row["name"],
+            }
+            for row in country_df.to_dicts()
+        ]
+
+        with engine.connect() as connection:
+            transaction = connection.begin()
+            try:
+                connection.execute(insert(country_table), countries)
+                transaction.commit()
+            except Exception as e:
+                transaction.rollback()
+
+    except Exception as e:
+        print(f"Error inserting country data: {e}")
+
+
 if __name__ == "__main__":
+    init_db(DATABASE_URL)
+
     csv_files = [
         "active1.csv",
         "noaa1.csv",
@@ -75,12 +118,6 @@ if __name__ == "__main__":
     ]
     process_multiple_csv(csv_files)
 
+    populate_country_table("countries.csv", engine)
 
-def find_satellites_by_name(search_term):
-    connection = sqlite3.connect("app_database.db")
-    cursor = connection.cursor()
-    query = "SELECT * FROM satellite WHERE name LIKE ? LIMIT 5"
-    cursor.execute(query, ("%" + search_term + "%",))  # Match partial input
-    results = cursor.fetchall()
-    connection.close()
-    return results
+
