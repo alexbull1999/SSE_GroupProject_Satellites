@@ -66,7 +66,7 @@ def process_query(query):
 N2YO_API_BASE = "https://api.n2yo.com/rest/v1/satellite/"
 N2YO_API_KEY = "LMFEWE-UWEWBT-WF7CWC-5DK0"
 def get_satellite_position(satid):
-    url = "{N2YO_API_KEY}positions/{satid}/0/0/0/1&apiKey={N2YO_API_KEY}"
+    url = f"{N2YO_API_KEY}positions/{satid}/0/0/0/1&apiKey={N2YO_API_KEY}"
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -81,38 +81,55 @@ def get_satellite_position(satid):
 
 def get_country_from_coordinates(lat, lng):
     try:
-        location = geolocator.reverse((lat, lng), exactly_one=True)
+        coord = f"{lat}, {lng}"
+        location = geolocator.reverse(coord, exactly_one=True)
         if location:
             address = location.raw.get('address', {})
             return address.get('country', None)
     except (GeocoderTimedOut, GeocoderServiceError) as e:
         print("Geocoding error: {e}")
-        return None
+    return None
 
 
 @app.route("/country", methods=["POST"])
 def get_satellites_over_country():
 
-    input_country =  request.form.get("country")
+    input_country = request.form.get("country")
 
     if not input_country:
         return jsonify({"error": "Please specify a country."}), 400
 
+    url = f"{N2YO_API_BASE}above/0/0/0/90/0&apiKey={N2YO_API_KEY}"
+    response = requests.get(url)
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch satellites from API."}), 500
+
+    all_satellites_data = response.json()
+    satellites = all_satellites_data.get("above", [])
+
     satellites_over_country = []
 
+    input_country_normalized = input_country.strip().lower()
 
-    for satellite in all_satellites:
-        satid = satellite["id"]
+    print(f"Total satellites fetched: {len(satellites)}")
+
+    for satellite in satellites:
+        satid = satellite.get("satid")
+        satname = satellite.get("satname")
         sat_lat, sat_lng = get_satellite_position(satid)
 
         if sat_lat is not None and sat_lng is not None:
             satellite_country = get_country_from_coordinates(sat_lat, sat_lng)
-            if satellite_country and satellite_country.lower() == input_country.lower():
-                satellites_over_country.append({
-                        "id": satellite["id"],
-                        "name": satellite["name"],
-                        "latitude": sat_lat,
-                        "longitude": sat_lng
+            print(f"Satellite {satname} ({satid} -> Coordinates: {sat_lat}, {sat_lng}, Country: {satellite_country})")
+
+            if satellite_country:
+                satellite_country_normalized = satellite_country.strip().lower()
+                if satellite_country_normalized == input_country_normalized:
+                    satellites_over_country.append({
+                            "id": satid,
+                            "name": satellite["satname"],
+                            "latitude": sat_lat,
+                            "longitude": sat_lng
                     })
 
     if satellites_over_country:
