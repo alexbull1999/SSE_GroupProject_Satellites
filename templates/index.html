@@ -42,14 +42,18 @@
     <div class="bg-gray-800 p-6 rounded-lg shadow-md w-4/5 sm:w-2/3 lg:w-1/2 text-center">
         <h3 class="text-lg md:text-xl font-medium text-gray-200">Find Satellite</h3>
         <form action="/satellite" method="GET" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
-            <input
+            <div class="relative w-full md:w-auto">
+                <!--search bar -->
+                <input
                 type="text"
+                id = "search-bar"
                 placeholder="Enter satellite name"
+                oninput = "searchSatellite()"
                 name = "name"
                 autocomplete = "off"
                 class="w-full px-3 py-2 rounded text-gray-800"
-            />
-            <div class="suggestions" id="suggestions">
+                />
+                <div id="dropdown" class="dropdown-menu"></div>
             </div>
             <button
                 class="w-full md:w-1/3 bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">

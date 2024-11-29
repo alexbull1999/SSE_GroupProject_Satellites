@@ -1,11 +1,11 @@
 from unittest.mock import patch
 from app import process_query, get_satellite_data, app
-from models import satelliteTable
 from database import read_and_insert_csv, init_db, get_engine
 import pytest
-from sqlalchemy import inspect, select, delete
+from sqlalchemy import inspect, select, MetaData
 import polars as pl
 import os
+from models import satellite_table as get_satellite_table
 
 
 def test_knows_about_moon():
@@ -82,16 +82,8 @@ def engine():
     if os.path.exists(TEST_DATABASE_FILE):
         os.remove(TEST_DATABASE_FILE)  # ensure a clean database
 
-    init_db()  # Initialize database
-    return get_engine()
-
-
-@pytest.fixture(autouse=True)
-def clear_table(engine):
-    """Clear satellite table before each test"""
-    with engine.connect() as connection:
-        connection.execute(delete(satelliteTable))
-        connection.commit()
+    init_db(TEST_DATABASE_URL)  # Initialize database
+    return get_engine(TEST_DATABASE_URL)
 
 
 @pytest.fixture
@@ -129,13 +121,13 @@ def test_satellite_table_columns(engine):
 def test_csv_import(engine, sample_csv):
     """Test if csv can be imported"""
     # Run CSV import logic
-    read_and_insert_csv(sample_csv)
+    read_and_insert_csv(sample_csv, engine)
 
     # Query the satellite table
     with engine.connect() as connection:
         result = connection.execute(
-            select(satelliteTable)
-        ).mappings()  # Using .mappings() to map column names to vlaues
+            select(get_satellite_table)
+        ).mappings()  # Using .mappings() to map column names to values
         rows = list(result)
 
     # Verify the data matches the CSV
