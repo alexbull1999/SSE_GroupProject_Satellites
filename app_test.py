@@ -30,8 +30,7 @@ def test_homepage(client):
 
 def test_satellite_search(client):
     """Test the satellite search."""
-    data = {"name": "Hubble Space Telescope"}
-    response = client.post("/satellite", data=data)
+    response = client.get("/satellite?name=HST")
     assert response.status_code == 200
     # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
@@ -39,8 +38,7 @@ def test_satellite_search(client):
 
 def test_invalid_search(client):
     """Test for non-existent satellite search."""
-    data = {"name": "non-existent satellite"}
-    response = client.post("/satellite", data=data)
+    response = client.get("/satellite?name=non-existent%20satellite")
     assert response.status_code == 404
     # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"404 Not Found" in response.data

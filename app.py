@@ -5,7 +5,7 @@ from database import get_engine, DATABASE_URL, init_db, find_satellites_by_name
 
 app = Flask(__name__)
 
-#configure production database
+# configure production database
 engine = get_engine(DATABASE_URL)
 
 
@@ -38,7 +38,7 @@ def satellite():
     if not input_satellite:
         return "Satellite name is required", 400
 
-    #Connect to the database and fetch corresponding satellite ID
+    # Connect to the database and fetch corresponding satellite ID
     try:
         connection = sqlite3.connect("app_database.db")
         cursor = connection.cursor()
@@ -46,11 +46,11 @@ def satellite():
         # Query to get the satellite ID based on the name
         query = "SELECT * FROM satellite WHERE name = ?"
         cursor.execute(query, (input_satellite,))
-        result = cursor.fetchone() #Fetch first result
+        result = cursor.fetchone()  # Fetch first result
 
         connection.close()
 
-        #Check if result was found
+        # Check if result was found
         if result:
             satellite_id = result[0]
             start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
@@ -97,12 +97,12 @@ def get_satellite_data(satellite_id):
     else:
         return None
 
-#route to implement the suggested search in index.html
-@app.route('/search', methods=['GET'])
+
+# route to implement the suggested search in index.html
+@app.route("/search", methods=["GET"])
 def search():
-    query = request.args.get('query')
+    query = request.args.get("query")
     if query:
         results = find_satellites_by_name(query)
-        return jsonify(results) #return the results as JSON
-    return jsonify([]) #return an empty list if no query
-
+        return jsonify(results)  # return the results as JSON
+    return jsonify([])  # return an empty list if no query

@@ -77,10 +77,10 @@ if __name__ == "__main__":
 
 
 def find_satellites_by_name(search_term):
-    connection = sqlite3.connect('app_database.db')
+    connection = sqlite3.connect("app_database.db")
     cursor = connection.cursor()
     query = "SELECT * FROM satellite WHERE name LIKE ? LIMIT 5"
-    cursor.execute(query, ('%' + search_term + '%',)) #Match partial input
+    cursor.execute(query, ("%" + search_term + "%",))  # Match partial input
     results = cursor.fetchall()
     connection.close()
     return results
