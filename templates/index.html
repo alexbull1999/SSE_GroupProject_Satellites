@@ -60,50 +60,7 @@
                 Search
             </button>
         </form>
-
-        <script>
-            $(document).ready(function () {
-                const input = $('#name');
-                const suggestionsBox = $('#suggestions');
-
-                input.on('input', function () {
-                    const query = $(this).val();
-
-                    if (query.length < 1) {
-                        suggestionsBox.hide();
-                        return;
-                    }
-
-                    $.get('/suggest', { q: query }, function (data) {
-                        suggestionsBox.empty();
-                        if (data.length > 0) {
-                            data.forEach(name => {
-                                suggestionsBox.append('<div>${name}</div>')
-                            });
-                            suggestionsBox.show();
-                        } else {
-                            suggestionsBox.hide();
-                        }
-                    });
-                });
-
-                // Handle click on a suggestion
-                suggestionBox.on('click', 'div', function () {
-                    input.val($(this).text());
-                    suggestionsBox.hide();
-                });
-
-                // Hide suggestions when clicking outside
-                $(document).on('click', function (e) {
-                    if (!$(e.target).closest('#name, #suggestions').length) {
-                        suggestionsBox.hide();
-                    }
-                });
-            });
-        </script>
     </div>
-
-
 
 
     <!-- Add Project Banner -->
