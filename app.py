@@ -89,7 +89,6 @@ def process_query(query):
 
 
 N2YO_API_BASE = "https://api.n2yo.com/rest/v1/satellite/"
-N2YO_API_KEY = "LMFEWE-UWEWBT-WF7CWC-5DK0"
 
 @app.route("/country", methods=["POST"])
 def get_satellites_over_country():
@@ -137,8 +136,9 @@ def get_satellites_over_country():
     category_id = 0  # 0 to search for all satellite categories
 
     try:
+        API_KEY = os.getenv("API_KEY")
         # Construct the API request URL for fetching satellites above the country
-        url = f"{N2YO_API_BASE}above/{observer_lat}/{observer_lng}/{observer_alt}/{search_radius}/{category_id}/&apiKey={N2YO_API_KEY}"
+        url = f"{N2YO_API_BASE}above/{observer_lat}/{observer_lng}/{observer_alt}/{search_radius}/{category_id}/&apiKey={API_KEY}"
         # Send the request to the N2YO API
         response = requests.get(url)
 
