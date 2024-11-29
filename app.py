@@ -2,9 +2,10 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import sqlite3
 from database import get_engine, DATABASE_URL, init_db, find_satellites_by_name
+import os
+from dotenv import load_dotenv
 
-from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+load_dotenv()
 app = Flask(__name__)
 
 # configure production database
@@ -14,6 +15,20 @@ engine = get_engine(DATABASE_URL)
 if __name__ == "__main__":
     init_db(DATABASE_URL)
     app.run(debug=True)
+
+
+all_satellites = [
+    {
+        "id": "25544",
+        "name": "International Space Station",
+    },
+    {
+        "id": "20580",
+        "name": "Hubble Space Telescope",
+    },
+]
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -41,8 +56,9 @@ def satellite():
         # Check if result was found
         if result:
             satellite_id = result[0]
+            API_KEY = os.getenv("API_KEY")
             start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
-            end_url = "&apiKey=LMFEWE-UWEWBT-WF7CWC-5DK0"
+            end_url = f"&apiKey={API_KEY}"
             url = f"{start_url}{satellite_id}{end_url}"
             response = requests.get(url)
             if response.status_code == 200:

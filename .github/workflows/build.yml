@@ -32,6 +32,8 @@ jobs:
       - name: Install Flask
         run: pip install Flask
       - name: Run tests
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
         run: pytest app_test.py
 
   deploy-to-impaas:
@@ -46,5 +48,6 @@ jobs:
           app-name: track-to-the-future
           deployment-token: ${{ secrets.IMPAAS_DEPLOY_TOKEN }}
           method: PLATFORM
+
 
 
