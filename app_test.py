@@ -2,7 +2,7 @@ from unittest.mock import patch
 from app import process_query, get_satellite_data, app
 from database import read_and_insert_csv, init_db, get_engine
 import pytest
-from sqlalchemy import inspect, select, MetaData
+from sqlalchemy import inspect, select
 import polars as pl
 import os
 from models import satellite_table as get_satellite_table
