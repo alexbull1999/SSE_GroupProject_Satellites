@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
-from models import satelliteTable
-from models import metadata
+from models import satellite_table, Base
 import polars as pl
+import sqlite3
 
 # Define the SQLite database file
 DATABASE_FILE = "app_database.db"  # SQLite database file name
@@ -10,19 +10,20 @@ DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 engine = create_engine(DATABASE_URL, echo=True)  # echo=True for logging
 
 
-def get_engine():
+def get_engine(database_url=None):
     """Returns database engine"""
-    return engine
+    return create_engine(database_url or DATABASE_URL)
 
 
-def init_db():
+def init_db(database_url=None):
     """Initializes the database by creating all tables defined
     in the metadata"""
-    metadata.create_all(bind=engine)
+    engine = create_engine(database_url or DATABASE_URL)
+    Base.metadata.create_all(bind=engine)
 
 
 # Use satelliteTable defined in models
-def read_and_insert_csv(file_path):
+def read_and_insert_csv(file_path, engine):
     """Reads a csv file and inserts selected columns into the database"""
     # Read the CSV file using Polars
     schema_overrides = {
@@ -48,7 +49,7 @@ def read_and_insert_csv(file_path):
         transaction = connection.begin()
         try:
             connection.execute(
-                satelliteTable.insert().prefix_with("OR IGNORE"),
+                satellite_table.insert().prefix_with("OR IGNORE"),
                 data,
             )
             transaction.commit()
@@ -60,7 +61,7 @@ def read_and_insert_csv(file_path):
 def process_multiple_csv(files):
     """Processes multiple csv files and inserts data into database"""
     for file in files:
-        read_and_insert_csv(file)
+        read_and_insert_csv(file, engine)
 
 
 if __name__ == "__main__":
@@ -73,3 +74,13 @@ if __name__ == "__main__":
         "starlink1.csv",
     ]
     process_multiple_csv(csv_files)
+
+
+def find_satellites_by_name(search_term):
+    connection = sqlite3.connect("app_database.db")
+    cursor = connection.cursor()
+    query = "SELECT * FROM satellite WHERE name LIKE ? LIMIT 5"
+    cursor.execute(query, ("%" + search_term + "%",))  # Match partial input
+    results = cursor.fetchall()
+    connection.close()
+    return results
