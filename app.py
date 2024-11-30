@@ -97,6 +97,7 @@ def satellite_by_id(satellite_id):
         return satellite_data
     return "404 Not Found", 404
 
+
 def process_query(query):
     if query.lower() == "moon":
         return "Moon made of cheese"
@@ -104,11 +105,12 @@ def process_query(query):
 
 N2YO_API_BASE = "https://api.n2yo.com/rest/v1/satellite/"
 
+
 @app.route("/country", methods=["POST"])
 def get_satellites_over_country():
     """
-       Retrieve satellites currently over a specified country using the N2YO API.
-       """
+    Retrieve satellites currently over a specified country using the N2YO API.
+    """
 
     # Extract the country name from the form input
     input_country = request.form.get("country")
@@ -117,9 +119,10 @@ def get_satellites_over_country():
     if not input_country:
         return render_template(
             "country.html",
-            country=None, # No country to display
-            satellites=[], # No satellites found
-            message = "Please specify a country" ) # Error message for the user
+            country=None,  # No country to display
+            satellites=[],  # No satellites found
+            message="Please specify a country",
+        )  # Error message for the user
 
     # Initialize an empty list to store satellites found above the country
     satellites_over_country = []
@@ -137,9 +140,10 @@ def get_satellites_over_country():
             "country.html",
             country=input_country,
             satellites=[],
-            message="Country not found.")
+            message="Country not found.",
+        )
 
-    #Extract the latitude and longitude for the specified country
+    # Extract the latitude and longitude for the specified country
     country_coords = country_data[input_country]
     observer_lat = country_coords["lat"]
     observer_lng = country_coords["lng"]
@@ -162,33 +166,34 @@ def get_satellites_over_country():
                 "country.html",
                 country=input_country,
                 satellites=[],
-                message="Failed to fetch data from N2YO API.")
+                message="Failed to fetch data from N2YO API.",
+            )
 
         # Parse the response JSON to extract satellite data
         data = response.json()
 
         # Loop through the satellites listed in the "above" field of the response
         for sat in data.get("above", []):
-            satellites_over_country.append({
-                "id": sat.get("satid"),
-                "name": sat.get("satname"),
-                "latitude": sat.get("satlat"),
-                "longitude": sat.get("satlng"),
-            })
+            satellites_over_country.append(
+                {
+                    "id": sat.get("satid"),
+                    "name": sat.get("satname"),
+                    "latitude": sat.get("satlat"),
+                    "longitude": sat.get("satlng"),
+                }
+            )
 
         # Render the country.html template with the found satellites and country name
         return render_template(
-            "country.html",
-            country=input_country,
-            satellites=satellites_over_country)
+            "country.html", country=input_country, satellites=satellites_over_country
+        )
 
     except Exception as e:
         # Handle any unexpected exceptions during the API request or data processing
         return render_template(
-            "country.html",
-            country=input_country,
-            satellites=[],
-            message=str(e))
+            "country.html", country=input_country, satellites=[], message=str(e)
+        )
+
 
 if __name__ == "__main__":
     init_db(DATABASE_URL)
@@ -203,6 +208,7 @@ if __name__ == "__main__":
 #       return render_template("satellite.html", satellite=satellite_data)
 # function to mock test api
 
+
 def get_satellite_data(satellite_id):
     start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
     end_url = "&apiKey=LMFEWE-UWEWBT-WF7CWC-5DK0"
@@ -213,6 +219,7 @@ def get_satellite_data(satellite_id):
         # change to return to the render template satellite.html
     else:
         return None
+
 
 def dms_to_decimal(dms_str):
     d, m, s = map(float, dms_str.split(":"))
@@ -278,6 +285,7 @@ def getlocation(lat, long):
                     location_string = location_string + ", " + name
         return location_string
     return "No location Found"
+
 
 # route to implement the suggested search in index.html
 @app.route("/search", methods=["GET"])
