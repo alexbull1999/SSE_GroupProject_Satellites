@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests
 import sqlite3
 from database import get_engine, DATABASE_URL, init_db, find_satellites_by_name
@@ -11,15 +11,7 @@ import pycountry
 load_dotenv()
 app = Flask(__name__)
 
-# configure production database
-engine = get_engine(DATABASE_URL)
-
-
-if __name__ == "__main__":
-    init_db(DATABASE_URL)
-    app.run(debug=True)
-
-
+# dummy data for satellites
 all_satellites = [
     {
         "id": "25544",
@@ -30,6 +22,22 @@ all_satellites = [
         "name": "Hubble Space Telescope",
     },
 ]
+
+# dummy data for user accounts
+user_info = {
+    "AlexB": {
+        "username": "AlexB",
+        "countries": ["USA", "India"],
+        "satellites": ["20580", "25544"],
+    },
+    "RobL": {"username": "RobL"},
+    "SermilaI": {"username": "SermilaI"},
+    "TimJ": {
+        "username": "TimJ",
+        "countries": [],
+        "satellites": ["25544"],
+    },
+}
 
 
 @app.route("/")
@@ -96,6 +104,68 @@ def satellite_by_id(satellite_id):
         # change to return to the render template satellite.html
         return satellite_data
     return "404 Not Found", 404
+
+
+@app.route("/country/<country_name>", methods=["GET"])
+def country_details(country_name):
+    # for now placeholder. update with sermilla code
+    return f"Details for country: {country_name} (this is a placeholder) "
+
+
+@app.route("/create_account", methods=["POST"])
+def create_account():
+    data = request.get_json()
+    username = data.get("username")
+    # check if username already exists
+    if username in user_info:
+        return (
+            jsonify({"error": "User already exists"}),
+            400,
+        )  # return in jsonify so java can read it.
+    user_info[username] = {"username": username}
+    return jsonify({"message": "Account created successfully"}), 200
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data.get("username")
+    # check if username exists
+    if username not in user_info:
+        return jsonify({"error": "User does not exist"}), 400
+    return jsonify({"message": "Login successful"}), 200
+
+
+@app.route("/account/<username>")
+def account(username):
+    if username not in user_info:
+        return redirect(
+            url_for("login")
+        )  # redirect to home page if no account found
+
+    # retrive user data
+    user = user_info[username]
+
+    # convert satellites id to satellite name
+    satellites = [
+        next(sat for sat in all_satellites if sat["id"] == satellite_id)
+        for satellite_id in user.get("satellites", [])
+    ]
+
+    # get country names
+    countries = user.get("countries", [])
+
+    # Return the account page for hte user if the account exists
+    return render_template(
+        "account.html",
+        username=user["username"],
+        satellites=satellites,
+        countries=countries,
+    )
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 def process_query(query):
@@ -210,9 +280,9 @@ if __name__ == "__main__":
 # data = response.json()
 
 #       return render_template("satellite.html", satellite=satellite_data)
+
+
 # function to mock test api
-
-
 def get_satellite_data(satellite_id):
     start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
     end_url = "&apiKey=LMFEWE-UWEWBT-WF7CWC-5DK0"

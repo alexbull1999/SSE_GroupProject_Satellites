@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <!-- Welcome message and user details -->
+    <div class="container mx-auto p-6">
+        <h2 class="text-3xl font-semibold text-indigo-400 mb-6">Welcome, {{ username }}!</h2>
+
+        <!-- Satellites Table -->
+        <section class="mt-6">
+            <h3 class="text-2xl font-semibold text-indigo-400 mb-4">Satellites You Are Tracking</h3>
+            <table class="table-auto w-full bg-gray-800 rounded-lg shadow-md">
+                <thead>
+                    <tr>
+                        <th class="p-3 text-left text-gray-300">Satellite Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for satellite in satellites %}
+                         <tr>
+                            <!-- Make the satellite name clickable -->
+                            <td class="p-3 text-gray-400">
+                                <a href="{{ url_for('satellite_by_id', satellite_id=satellite.id) }}" class="text-indigo-500 hover:text-indigo-700">
+                                    {{ satellite.name }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="1" class="p-3 text-center text-gray-400">No satellites being tracked.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Countries Table -->
+        <section class="mt-6">
+            <h3 class="text-2xl font-semibold text-indigo-400 mb-4">Countries You Are Tracking</h3>
+            <table class="table-auto w-full bg-gray-800 rounded-lg shadow-md">
+                <thead>
+                    <tr>
+                        <th class="p-3 text-left text-gray-300">Country</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for country in countries %}
+                       <tr>
+                            <!-- Make the country name clickable -->
+                            <td class="p-3 text-gray-400">
+                                  <a href="{{ url_for('country_details', country_name=country) }}" class="text-indigo-500 hover:text-indigo-700">
+                                    {{ country }}
+                                  </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="1" class="p-3 text-center text-gray-400">No countries being tracked.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+{% endblock %}
+
