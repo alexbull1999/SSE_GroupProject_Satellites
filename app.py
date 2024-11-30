@@ -115,7 +115,7 @@ def get_satellites_over_country():
     # Extract the country name from the form input
     input_country = request.form.get("country")
 
-    # If no country is specified, render the country.html page with an error message
+    # If no country specified, render the country.html page with error message
     if not input_country:
         return render_template(
             "country.html",
@@ -134,7 +134,7 @@ def get_satellites_over_country():
         "Turkey": {"lat": 38.9637, "lng": 35.2433},
     }
 
-    # Render the country.html page with an error if the input country is not in the country database
+    # Render page with an error if input country is not in the country database
     if input_country not in country_data:
         return render_template(
             "country.html",
@@ -155,10 +155,12 @@ def get_satellites_over_country():
 
     try:
         API_KEY = os.getenv("API_KEY")
-        # Construct the API request URL for fetching satellites above the country
-        url = f"{N2YO_API_BASE}above/{observer_lat}/{observer_lng}/{observer_alt}/{search_radius}/{category_id}/&apiKey={API_KEY}"
+        # Construct the API request URL for fetching satellites above country
+        start_url = f"{N2YO_API_BASE}above/{observer_lat}/"
+        middle_url = f"{observer_lng}/{observer_alt}/"
+        end_url = f"{search_radius}/{category_id}/&apiKey={API_KEY}"
         # Send the request to the N2YO API
-        response = requests.get(url)
+        response = requests.get(start_url + middle_url + end_url)
 
         # Return an error message if response status not successful
         if response.status_code != 200:
@@ -172,7 +174,7 @@ def get_satellites_over_country():
         # Parse the response JSON to extract satellite data
         data = response.json()
 
-        # Loop through the satellites listed in the "above" field of the response
+        # Loop through satellites listed in the "above" field of the response
         for sat in data.get("above", []):
             satellites_over_country.append(
                 {
@@ -183,15 +185,17 @@ def get_satellites_over_country():
                 }
             )
 
-        # Render the country.html template with the found satellites and country name
+        # Render country.html with the found satellites and country name
+        over = satellites_over_country
         return render_template(
-            "country.html", country=input_country, satellites=satellites_over_country
+            "country.html", country=input_country, satellites=over
         )
 
     except Exception as e:
-        # Handle any unexpected exceptions during the API request or data processing
+        # Handle any unexpected exceptions during API request / data processing
+        ic = input_country
         return render_template(
-            "country.html", country=input_country, satellites=[], message=str(e)
+            "country.html", country=ic, satellites=[], message=str(e)
         )
 
 
