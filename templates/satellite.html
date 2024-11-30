@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,12 +7,14 @@
 <body>
 <h1> <!--- {{ satellite.name }} ---> Table </h1>
 <ul>
-    <li>{{ satellite }}</li>
-      <!---  <li>Name: {{ satellite["name"] }}</li>
-        <li>NORAD ID: {{ satellite["satelliteId"] }}</li>
-        <li>Line 1: {{ satellite["line1"] }}</li>
-        <li>Line 2: {{ satellite["line2"] }}</li> --->
-    </ul>
+    <li>Name: {{ satellite["name"] }}</li>
+    <li>NORAD ID: {{ satellite["id"] }}</li>
+    <li>Latitude: {{ satellite["lat"] }}</li>
+    <li>Longitude: {{ satellite["long"] }}</li>
+    <li>Location: {{ satellite["location"] }}</li>
+    <li>Elevation: {{ satellite["elevation"]}}km above sea level!</li>
+    <li>Speed: {{ satellite["ground_speed"]}}km/s</li>
+</ul>
 </body>
 </html>
 
