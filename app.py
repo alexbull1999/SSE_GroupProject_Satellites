@@ -4,6 +4,9 @@ import sqlite3
 from database import get_engine, DATABASE_URL, init_db, find_satellites_by_name
 import os
 from dotenv import load_dotenv
+import ephem
+import math
+import pycountry
 
 load_dotenv()
 app = Flask(__name__)
@@ -63,7 +66,18 @@ def satellite():
             response = requests.get(url)
             if response.status_code == 200:
                 satellite_data = response.json()
-                return satellite_data
+                tle_lines = satellite_data["tle"].split("\r\n")
+                name = satellite_data["info"]["satname"]
+                tle = [name, tle_lines[0], tle_lines[1]]
+                data = pyephem(tle)
+                data["name"] = input_satellite
+                data["id"] = satellite_data["info"]["satid"]
+                if "url" in result:
+                    data["url"] = result["url"]
+                lat = str(data["lat"])
+                long = str(data["long"])
+                data["location"] = getlocation(lat, long)
+                return render_template("satellite.html", satellite=data)
         else:
             return "404 Not Found", 404
     except Exception as e:
@@ -200,6 +214,70 @@ def get_satellite_data(satellite_id):
     else:
         return None
 
+def dms_to_decimal(dms_str):
+    d, m, s = map(float, dms_str.split(":"))
+    decimal = float(d) + (float(m) / 60) + (float(s) / 3600)
+    return str(round(decimal, 6))
+
+
+def pyephem(tle):
+
+    RADIUS = 6371.0
+    GRAVITY = 398600.4418  # km^3/s^2
+
+    time = ephem.now()
+
+    observer = ephem.Observer()
+    observer.date = ephem.now()
+    sat = ephem.readtle(tle[0], tle[1], tle[2])
+    sat.compute(observer)
+
+    lat = sat.sublat
+    long = sat.sublong
+
+    observer2 = ephem.Observer()
+    observer2.lat, observer2.long, observer2.elevation = lat, long, 0
+    observer2.date = time
+
+    sat.compute(observer2)
+
+    elevation = sat.elevation / 1000
+    ov = math.sqrt(GRAVITY / (RADIUS + elevation))
+    ground_speed = ov * (RADIUS / (RADIUS + elevation))
+
+    data = {
+        "lat": lat,
+        "long": long,
+        # "lat": lat,
+        # "long": long,
+        "elevation": "{:.0f}".format(elevation),
+        "ground_speed": round(ground_speed, 2),
+    }
+    return data
+
+
+def getlocation(lat, long):
+    url_start = "https://api.openweathermap.org/geo/1.0/reverse?"
+    url_lat_long = f"lat={dms_to_decimal(lat)}&lon={dms_to_decimal(long)}"
+    url_end = "&limit=5&appid=41e586f2e94d706bdda4da03e56922e5"
+    response = requests.get(url_start + url_lat_long + url_end)
+    if response.status_code == 200:
+        location = response.json()
+        if len(location) == 0:
+            return "Currently flying over the ocean"
+        location_string = "No location found"
+        if location[0]["country"] is not None:
+            code = location[0]["country"].upper()
+            country = pycountry.countries.get(alpha_2=code)
+            location_string = country.name if country else code
+            if location[0]["state"] is not None:
+                state = location[0]["state"]
+                location_string = location_string + ", " + state
+                if location[0]["name"] is not None:
+                    name = location[0]["name"]
+                    location_string = location_string + ", " + name
+        return location_string
+    return "No location Found"
 
 # route to implement the suggested search in index.html
 @app.route("/search", methods=["GET"])
