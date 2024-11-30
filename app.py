@@ -117,7 +117,8 @@ def getlocation(lat, long):
                 state = location[0]["state"]
                 location_string = location_string + ", " + state
                 if location[0]["name"] is not None:
-                    location_string = location_string + ", " + location[0]["name"]
+                    name = location[0]["name"]
+                    location_string = location_string + ", " + name
         return location_string
     return "No location Found"
 
