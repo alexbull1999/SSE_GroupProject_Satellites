@@ -7,6 +7,7 @@ from sqlalchemy import inspect, select, delete
 import polars as pl
 import os
 
+#update once there is sqldata
 
 def test_knows_about_moon():
     assert process_query("moon") == "Moon made of cheese"
@@ -52,6 +53,44 @@ def test_clickable_satellite(client):
     assert response.status_code == 200
     # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
+
+def test_create_new_user(client):
+    #simulating creating a new user
+    response = client.post("/create_account", data={"username": "new_user"})
+
+    #test account created successfully
+    assert response.status_code == 200
+    assert b'Welcome, new_user' in response.data
+
+def test_creat_account_existing_user(client):
+    #simulate creating an account
+    response = client.post("/create_account", json={"username": "test_user"})
+    assert response.status_code == 200  # Account created successfully
+
+    # Simulate trying to create the same account again
+    response = client.post("/create_account", json={"username": "test_user"})
+    assert response.status_code == 400  # Should return error for existing user
+    assert b"User already exists" in response.data  # Error message expected
+
+
+def test_login_valid_user(client):
+    # Send a POST requst to login
+    response = client.get("/login", json={"username": "AlexB"})
+    assert response.status_code == 200
+    assert b'Countries You Are Tracking' in response.data
+    assert b'USA' in response.data
+    assert b'India' in response.data
+    assert b'International Space Station' in response.data
+    assert b'Hubble Space Telescope' in response.data
+
+#my need a selenium for full browser interaction testing
+def test_login_invalid_user(client):
+    response = client.get("/login", json={"username": "nonexistent_use"})
+    assert response.status_code == 200
+    assert b'Invalid username' in response.data
+
+
+
 
 
 @patch("requests.get")

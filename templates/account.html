@@ -12,20 +12,21 @@
                 <thead>
                     <tr>
                         <th class="p-3 text-left text-gray-300">Satellite Name</th>
-                        <th class="p-3 text-left text-gray-300">Details</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for satellite in satellites %}
-                        <tr>
-                            <td class="p-3 text-gray-400">{{ satellite.name }}</td>
+                         <tr>
+                            <!-- Make the satellite name clickable -->
                             <td class="p-3 text-gray-400">
-                                <a href="{{ url_for('satellite_by_id', satellite_id=satellite.id) }}" class="text-indigo-500 hover:text-indigo-700">View Details</a>
+                                <a href="{{ url_for('satellite_by_id', satellite_id=satellite.id) }}" class="text-indigo-500 hover:text-indigo-700">
+                                    {{ satellite.name }}
+                                </a>
                             </td>
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="2" class="p-3 text-center text-gray-400">No satellites being tracked.</td>
+                            <td colspan="1" class="p-3 text-center text-gray-400">No satellites being tracked.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -39,25 +40,22 @@
                 <thead>
                     <tr>
                         <th class="p-3 text-left text-gray-300">Country</th>
-                        <th class="p-3 text-left text-gray-300">Details</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for country in countries %}
-                        <tr>
-                            <td class="p-3 text-gray-400">{{ country.name }}</td>
+                       <tr>
+                            <!-- Make the country name clickable -->
                             <td class="p-3 text-gray-400">
-                                <a href="{{ url_for('country_details', country_name=country.name) }}" class="text-indigo-500 hover:text-indigo-700">View Details</a>
+                                  <a href="{{ url_for('country_details', country_name=country) }}" class="text-indigo-500 hover:text-indigo-700">
+                                    {{ country }}
+                                  </a>
                             </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="2" class="p-3 text-center text-gray-400">No countries being tracked.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </section>
-
-
+    </div>
 {% endblock %}
+

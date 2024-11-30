@@ -39,15 +39,15 @@
                 <thead>
                     <tr>
                         <th class="p-3 text-left text-gray-300">Country</th>
-                        <th class="p-3 text-left text-gray-300">Details</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for country in countries %}
                         <tr>
-                            <td class="p-3 text-gray-400">{{ country.name }}</td>
                             <td class="p-3 text-gray-400">
-                                <a href="{{ url_for('country_details', country_name=country.name) }}" class="text-indigo-500 hover:text-indigo-700">View Details</a>
+                                <a href="{{ url_for('country_details', country_name=country) }}" class="text-indigo-500 hover:text-indigo-700">
+                                    {{ country }}
+                                </a>
                             </td>
                         </tr>
                     {% else %}
@@ -58,6 +58,5 @@
                 </tbody>
             </table>
         </section>
-
     </div>
 {% endblock %}
