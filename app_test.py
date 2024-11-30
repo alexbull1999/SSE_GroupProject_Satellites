@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from app import process_query, get_satellite_data, app
+from app import process_query, get_satellite_data, app, user_info
 from models import satelliteTable
 from database import read_and_insert_csv, init_db, get_engine
 import pytest
@@ -7,7 +7,8 @@ from sqlalchemy import inspect, select, delete
 import polars as pl
 import os
 
-#update once there is sqldata
+# update once there is sqldata
+
 
 def test_knows_about_moon():
     assert process_query("moon") == "Moon made of cheese"
@@ -54,43 +55,73 @@ def test_clickable_satellite(client):
     # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
 
-def test_create_new_user(client):
-    #simulating creating a new user
-    response = client.post("/create_account", data={"username": "new_user"})
 
-    #test account created successfully
+def test_clickable_country(client):
+    """test the clicking on a country in user page"""
+    response = client.get("/country/USA")
     assert response.status_code == 200
-    assert b'Welcome, new_user' in response.data
+    assert b"USA" in response.data
 
-def test_creat_account_existing_user(client):
-    #simulate creating an account
+
+def test_create_new_user(client):
+    # simulating creating a new user
+    response = client.post(
+        "/create_account",
+        json=({"username": "new_user"}),
+        follow_redirects=False,
+    )
+
+    # Check JSON response code
+    assert response.status_code == 200
+    assert b'{"message":"Account created successfully"}\n' in response.data
+    # check the user is in the user_info database
+    assert "new_user" in user_info
+
+
+def test_create_account_existing_user(client):
+    # simulate creating an account
     response = client.post("/create_account", json={"username": "test_user"})
     assert response.status_code == 200  # Account created successfully
 
     # Simulate trying to create the same account again
     response = client.post("/create_account", json={"username": "test_user"})
     assert response.status_code == 400  # Should return error for existing user
-    assert b"User already exists" in response.data  # Error message expected
+    assert b"User already exists" in response.data
 
 
 def test_login_valid_user(client):
-    # Send a POST requst to login
-    response = client.get("/login", json={"username": "AlexB"})
+    """test for a valid user"""
+    response = client.post("/login", json={"username": "AlexB"})
     assert response.status_code == 200
-    assert b'Countries You Are Tracking' in response.data
-    assert b'USA' in response.data
-    assert b'India' in response.data
-    assert b'International Space Station' in response.data
-    assert b'Hubble Space Telescope' in response.data
+    assert b"Login successful" in response.data
 
-#my need a selenium for full browser interaction testing
+
 def test_login_invalid_user(client):
-    response = client.get("/login", json={"username": "nonexistent_use"})
+    """test for an invalid user"""
+    response = client.post("/login", json={"username": "nonexistent_use"})
+    assert response.status_code == 400
+    assert b"User does not exist" in response.data
+
+
+def test_account_display_valid_user(client):
+    """Test for a valid user with multiple satellites & countries"""
+    # Send a POST requst to login
+    response = client.get("/account/AlexB")
     assert response.status_code == 200
-    assert b'Invalid username' in response.data
+    assert b"Welcome, AlexB"
+    assert b"Countries You Are Tracking" in response.data
+    assert b"USA" in response.data
+    assert b"India" in response.data
+    assert b"International Space Station" in response.data
+    assert b"Hubble Space Telescope" in response.data
 
 
-
+def test_account_display_valid_user_no_countries_or_satellites(client):
+    """Test for a valid user with no satellites & countries tracked"""
+    response = client.get("/account/RobL")
+    assert response.status_code == 200
+    assert b"No satellites being tracked" in response.data
+    assert b"No countries being tracked" in response.data
 
 
 @patch("requests.get")

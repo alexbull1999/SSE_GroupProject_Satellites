@@ -67,10 +67,12 @@ def satellite_by_id(satellite_id):
         return satellite_data
     return "404 Not Found", 404
 
+
 @app.route("/country/<country_name>", methods=["GET"])
 def country_details(country_name):
-    #for now placeholder. update with sermilla code
-    return "Details for country: {country_name} (this is a placeholder) "
+    # for now placeholder. update with sermilla code
+    return f"Details for country: {country_name} (this is a placeholder) "
+
 
 @app.route("/create_account", methods=["POST"])
 def create_account():
@@ -103,16 +105,16 @@ def account(username):
             url_for("login")
         )  # redirect to home page if no account found
 
-    #retrive user data
+    # retrive user data
     user = user_info[username]
 
-    #convert satellites id to satellite name
+    # convert satellites id to satellite name
     satellites = [
         next(sat for sat in all_satellites if sat["id"] == satellite_id)
         for satellite_id in user.get("satellites", [])
     ]
 
-    # Flatten the list of countries if necessary
+    # get country names
     countries = user.get("countries", [])
 
     # Return the account page for hte user if the account exists
