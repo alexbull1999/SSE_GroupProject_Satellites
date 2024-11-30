@@ -1,7 +1,3 @@
-from itertools import count
-from pickletools import long1
-from unicodedata import decimal
-
 import ephem
 import math
 from flask import Flask, render_template, request
@@ -15,12 +11,10 @@ all_satellites = [
     {
         "id": "25544",
         "name": "International Space Station",
-        "url": "https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/e7e2/live/bea2c100-3539-11ef-a647-6fc50b20e53e.jpg",
     },
     {
         "id": "20580",
         "name": "Hubble Space Telescope",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg",
     },
 ]
 
@@ -43,13 +37,16 @@ def satellite():
             if response.status_code == 200:
                 satellite_data = response.json()
                 tle_lines = satellite_data["tle"].split("\r\n")
-                tle = [satellite_data["info"]["satname"], tle_lines[0], tle_lines[1]]
+                name = satellite_data["info"]["satname"]
+                tle = [name, tle_lines[0], tle_lines[1]]
                 data = pyephem(tle)
                 data["name"] = input_satellite
                 data["id"] = satellite_data["info"]["satid"]
                 if "url" in satellite:
                     data["url"] = satellite["url"]
-                data["location"] = getlocation(str(data["lat"]), str(data["long"]))
+                lat = str(data["lat"])
+                long = str(data["long"])
+                data["location"] = getlocation(lat, long)
                 return render_template("satellite.html", satellite=data)
                 # return pyephem(tle)
     return "404 Not Found", 404
@@ -68,8 +65,8 @@ def dms_to_decimal(dms_str):
 
 def pyephem(tle):
 
-    EARTH_RADIUS = 6371.0
-    EARTH_GRAVITY = 398600.4418  # km^3/s^2
+    RADIUS = 6371.0
+    GRAVITY = 398600.4418  # km^3/s^2
 
     time = ephem.now()
 
@@ -88,8 +85,8 @@ def pyephem(tle):
     sat.compute(observer2)
 
     elevation = sat.elevation / 1000
-    orbital_velocity = math.sqrt(EARTH_GRAVITY / (EARTH_RADIUS + elevation))
-    ground_speed = orbital_velocity * (EARTH_RADIUS / (EARTH_RADIUS + elevation))
+    ov = math.sqrt(GRAVITY / (RADIUS + elevation))
+    ground_speed = ov * (RADIUS / (RADIUS + elevation))
 
     data = {
         "lat": lat,
@@ -113,10 +110,12 @@ def getlocation(lat, long):
             return "Currently flying over the ocean"
         location_string = "No location found"
         if location[0]["country"] is not None:
-            country = pycountry.countries.get(alpha_2=location[0]["country"].upper())
-            location_string = country.name if country else location[0]["country"]
+            code = location[0]["country"].upper()
+            country = pycountry.countries.get(alpha_2=code)
+            location_string = country.name if country else code
             if location[0]["state"] is not None:
-                location_string = location_string + ", " + location[0]["state"]
+                state = location[0]["state"]
+                location_string = location_string + ", " + state
                 if location[0]["name"] is not None:
                     location_string = location_string + ", " + location[0]["name"]
         return location_string
