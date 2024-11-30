@@ -1,3 +1,4 @@
+from itertools import count
 from pickletools import long1
 from unicodedata import decimal
 
@@ -5,6 +6,7 @@ import ephem
 import math
 from flask import Flask, render_template, request
 import requests
+import pycountry
 
 
 app = Flask(__name__)
@@ -13,10 +15,12 @@ all_satellites = [
     {
         "id": "25544",
         "name": "International Space Station",
+        "url": "https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/e7e2/live/bea2c100-3539-11ef-a647-6fc50b20e53e.jpg",
     },
     {
         "id": "20580",
-            "name": "Hubble Space Telescope",
+        "name": "Hubble Space Telescope",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg",
     },
 ]
 
@@ -38,17 +42,16 @@ def satellite():
             response = requests.get(url)
             if response.status_code == 200:
                 satellite_data = response.json()
-                tle_lines = satellite_data["tle"].split('\r\n')
-
+                tle_lines = satellite_data["tle"].split("\r\n")
                 tle = [satellite_data["info"]["satname"], tle_lines[0], tle_lines[1]]
                 data = pyephem(tle)
-                data["name"] = satellite_data["info"]["satname"]
+                data["name"] = input_satellite
                 data["id"] = satellite_data["info"]["satid"]
-                #data["location"] = getlocation(data["lat"], data["long"])
-                string = "28:15:49.9"
-                return dms_to_decimal(string)
-                #return render_template("satellite.html", satellite=data)
-                #return pyephem(tle)
+                if "url" in satellite:
+                    data["url"] = satellite["url"]
+                data["location"] = getlocation(str(data["lat"]), str(data["long"]))
+                return render_template("satellite.html", satellite=data)
+                # return pyephem(tle)
     return "404 Not Found", 404
 
 
@@ -56,15 +59,17 @@ def process_query(query):
     if query.lower() == "moon":
         return "Moon made of cheese"
 
+
 def dms_to_decimal(dms_str):
     d, m, s = map(float, dms_str.split(":"))
     decimal = float(d) + (float(m) / 60) + (float(s) / 3600)
-    return str(decimal)
+    return str(round(decimal, 6))
+
 
 def pyephem(tle):
 
     EARTH_RADIUS = 6371.0
-    EARTH_GRAVITY = 398600.4418 # km^3/s^2
+    EARTH_GRAVITY = 398600.4418  # km^3/s^2
 
     time = ephem.now()
 
@@ -89,21 +94,36 @@ def pyephem(tle):
     data = {
         "lat": lat,
         "long": long,
-        #"lat": lat,
-        #"long": long,
+        # "lat": lat,
+        # "long": long,
         "elevation": "{:.0f}".format(elevation),
-        "ground_speed": round(ground_speed, 2)
+        "ground_speed": round(ground_speed, 2),
     }
     return data
 
+
 def getlocation(lat, long):
-    url = f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={long}&limit=5&appid=41e586f2e94d706bdda4da03e56922e5"
-    response = requests.get(url)
+    url_start = "https://api.openweathermap.org/geo/1.0/reverse?"
+    url_lat_long = f"lat={dms_to_decimal(lat)}&lon={dms_to_decimal(long)}"
+    url_end = "&limit=5&appid=41e586f2e94d706bdda4da03e56922e5"
+    response = requests.get(url_start + url_lat_long + url_end)
     if response.status_code == 200:
         location = response.json()
-        return location
+        if len(location) == 0:
+            return "Currently flying over the ocean"
+        location_string = "No location found"
+        if location[0]["country"] is not None:
+            country = pycountry.countries.get(alpha_2=location[0]["country"].upper())
+            location_string = country.name if country else location[0]["country"]
+            if location[0]["state"] is not None:
+                location_string = location_string + ", " + location[0]["state"]
+                if location[0]["name"] is not None:
+                    location_string = location_string + ", " + location[0]["name"]
+        return location_string
+    return "No location Found"
 
-    #41e586f2e94d706bdda4da03e56922e5
+    # 41e586f2e94d706bdda4da03e56922e5
+
 
 # url = f"https://tle.ivanstanojevic.me/api/tle/{id}"
 # data = []
