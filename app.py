@@ -66,17 +66,10 @@ def satellite():
             response = requests.get(url)
             if response.status_code == 200:
                 satellite_data = response.json()
-                tle_lines = satellite_data["tle"].split("\r\n")
-                name = satellite_data["info"]["satname"]
-                tle = [name, tle_lines[0], tle_lines[1]]
-                data = pyephem(tle)
-                data["name"] = input_satellite
-                data["id"] = satellite_data["info"]["satid"]
+                image_url = None
                 if "url" in result:
-                    data["url"] = result["url"]
-                lat = str(data["lat"])
-                long = str(data["long"])
-                data["location"] = getlocation(lat, long)
+                    image_url = url
+                data = generateSatData(image_url, satellite_data)
                 return render_template("satellite.html", satellite=data)
         else:
             return "404 Not Found", 404
@@ -86,6 +79,9 @@ def satellite():
 
 @app.route("/satellite/<int:satellite_id>", methods=["GET"])
 def satellite_by_id(satellite_id):
+
+    # Get the image URL from the query parameter
+    image_url = request.args.get("image_url")
     # Search for the satellite by ID
     start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
     end_url = "&apiKey=LMFEWE-UWEWBT-WF7CWC-5DK0"
@@ -93,8 +89,8 @@ def satellite_by_id(satellite_id):
     response = requests.get(url)
     if response.status_code == 200:
         satellite_data = response.json()
-        # change to return to the render template satellite.html
-        return satellite_data
+        data = generateSatData(image_url, satellite_data)
+        return render_template("satellite.html", satellite=data)
     return "404 Not Found", 404
 
 
@@ -187,9 +183,8 @@ def get_satellites_over_country():
 
         # Render country.html with the found satellites and country name
         over = satellites_over_country
-        return render_template(
-            "country.html", country=input_country, satellites=over
-        )
+        ic = input_country
+        return render_template("country.html", country=ic, satellites=over)
 
     except Exception as e:
         # Handle any unexpected exceptions during API request / data processing
@@ -277,18 +272,36 @@ def getlocation(lat, long):
         if len(location) == 0:
             return "Currently flying over the ocean"
         location_string = "No location found"
-        if location[0]["country"] is not None:
+        if "country" in location[0]:
             code = location[0]["country"].upper()
             country = pycountry.countries.get(alpha_2=code)
             location_string = country.name if country else code
-            if location[0]["state"] is not None:
+            if "state" in location[0]:
                 state = location[0]["state"]
                 location_string = location_string + ", " + state
-                if location[0]["name"] is not None:
+                if "name" in location[0]:
                     name = location[0]["name"]
                     location_string = location_string + ", " + name
         return location_string
     return "No location Found"
+
+
+def generateSatData(image_url, satellite_data):
+    tle_data = satellite_data["tle"]
+    name = satellite_data["info"]["satname"]
+    data = {}
+    if tle_data != "":
+        tle_lines = tle_data.split("\r\n")
+        tle = [name, tle_lines[0], tle_lines[1]]
+        data = pyephem(tle)
+        lat = str(data["lat"])
+        long = str(data["long"])
+        data["location"] = getlocation(lat, long)
+    if image_url is not None:
+        data["image_url"] = image_url
+    data["name"] = satellite_data["info"]["satname"]
+    data["id"] = satellite_data["info"]["satid"]
+    return data
 
 
 # route to implement the suggested search in index.html
