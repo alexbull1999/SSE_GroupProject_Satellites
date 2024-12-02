@@ -104,75 +104,87 @@ country_data = {
 }
 
 
-@app.route("/country", methods=["POST"])
+@app.route("/country", methods=["GET"])
 def get_satellites_over_country():
     """
     Retrieve satellites currently over a specified country using the N2YO API.
     """
     # Extract the country name from the form input
-    input_country = request.form.get("country")
+    input_country = request.args.get("country")
 
-    # Render the country.html page with an error if the input country is
-    # not in the country database
-    if input_country not in country_data:
-        return render_template(
-            "country.html",
-            country=None,  # No country to display
-            satellites=[],  # No satellites found
-            message="Country not found.",
-        )  # Error message for the user
+    if not input_country:
+        return "Country name is required", 400
 
-    # Extract the latitude and longitude for the specified country
-    observer_lat = country_data[input_country]["lat"]
-    observer_lng = country_data[input_country]["lng"]
+    # Connect to the database and fetch matching country names
+    try:
+        connection = sqlite3.connect("app_database.db")
+        cursor = connection.cursor()
 
-    # Define additional parameters for the satellite search
-    observer_alt = 0  # Default altitude in meters
-    search_radius = 10  # Search radius in degrees
-    category_id = 0  # 0 for all categories
+        # Query to get the satellite ID based on the name
+        query = "SELECT * FROM satellite WHERE name = ?"
+        cursor.execute(query, (input_country,))
+        result = cursor.fetchone()  # Fetch first result
 
-    satellites = []
+        connection.close()
 
-    # Extract the API key
-    API_KEY = os.getenv("API_KEY")
-    # Construct the API request URL for fetching satellites above the country
-    url = (
-        f"{N2YO_API_BASE}above/{observer_lat}/{observer_lng}/{observer_alt}/"
-        f"{search_radius}/{category_id}/&apiKey={API_KEY}"
-    )
-    # Send the request to the N2YO API
-    response = requests.get(url)
+        # Check if result was found
+        if result:
+            observer_lat = result[1]
+            observer_lng = result[2]
+            search_radius = result[5]
+            observer_alt = 0
+            category_id = 0
 
-    # Process the API response
-    if response.status_code == 200:  # Check if the request was successful
-        # Parse the response JSON to extract satellite data
-        data = response.json()
-        for sat in data.get(
-            "above", []
-        ):  # Iterate through the satellites in the "above" field
-            satellites.append(
-                {
-                    "id": sat.get("satid"),
-                    "name": sat.get("satname"),
-                }
+            # Extract API key
+            API_KEY = os.getenv("API_KEY")
+            if not API_KEY:
+                return "API key is missing in environment variables", 500
+
+            # Construct the API request URL for fetching satellites above the country
+            NY20_API_BASE = "https://api.n2yo.com/rest/v1/satellite/"
+            url = (
+                f"{NY20_API_BASE}above/{observer_lat}/{observer_lng}/{observer_alt}/"
+                f"{search_radius}/{category_id}/&apiKey={API_KEY}"
             )
-    else:
-        satellites = []  # Set an empty list if the request was unsuccessful
 
-    # Render the country.html template with the satellite data
-    # and the selected country
-    message = "No satellites currently above this country"
-    return render_template(
-        "country.html",
-        country=input_country,  # The country name for the display
-        satellites=satellites,  # List of satellites above the country
-        message=None if satellites else message,
-    )
+            # Send the request to the N2YO API
+            response = requests.get(url)
 
+            satellites = []
 
-if __name__ == "__main__":
-    init_db(DATABASE_URL)
-    app.run(debug=True)
+            # Process the API response
+            if (
+                response.status_code == 200
+            ):  # Check if the request was successful
+                # Parse the response JSON to extract satellite data
+                data = response.json()
+                for sat in data.get(
+                    "above", []
+                ):  # Iterate through the satellites in the "above" field
+                    satellites.append(
+                        {
+                            "id": sat.get("satid"),
+                            "name": sat.get("satname"),
+                        }
+                    )
+            else:
+                return "Failed to retrieve satellite data from API"  # Set an empty list if the request was unsuccessful
+
+            # Render the country.html template with the satellite data
+            # and the selected country
+            error_message = "No satellites currently above this country"
+            return render_template(
+                "country.html",
+                country=input_country,  # The country name for the display
+                satellites=satellites,  # List of satellites above the country
+                message=None if satellites else error_message,
+            )
+
+        else:
+            return "Country not found in database", 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 def get_satellite_data(satellite_id):

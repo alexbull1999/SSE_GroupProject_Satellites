@@ -80,6 +80,48 @@
             }
         }
     </script>
+    <script>
+        async function searchCountry() {
+            const query = document.getElementById('country-search-bar').value.trim();
+            const dropdown = document.getElementById('country-dropdown');
+
+            //Wait for at least 2 characters to be typed
+            if (query.length < 2) {
+                dropdown.innerHTML = '';
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/country_search?query=${encodeURIComponent(query)}`);
+                const countries = await response.json();
+
+                dropdown.innerHTML = ''; //Clear previous results
+                dropdown.style.display = 'none'; //Hide if no results
+
+                if (countries.length > 0) {
+                    countries.forEach(country => {
+                        const item = document.createElement('div');
+                        item.className = 'dropdown-item';
+                        item.textContent = country[1] // Country name
+
+                        //Handle click to autofill search bar
+                        item.onclick = () => {
+                            document.getElementById('country-search-bar').value = country[1];
+                            dropdown.innerHTML = '';
+                            dropdown.style.display = 'none'; //Hide dropdown again
+                            document.querySelector('form').submit(); // Submit the form
+                        };
+
+                        dropdown.appendChild(item);
+                    });
+                    dropdown.style.display = 'block'; //show dropdown
+                }
+            } catch (error) {
+                console.error('Error fetching countries:', error)
+            }
+        }
+    </script>
 </head>
 <body class="text-white font-sans">
     <div class="flex">
