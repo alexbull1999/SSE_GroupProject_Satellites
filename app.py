@@ -19,19 +19,6 @@ if __name__ == "__main__":
     init_db(DATABASE_URL)
     app.run(debug=True)
 
-
-all_satellites = [
-    {
-        "id": "25544",
-        "name": "International Space Station",
-    },
-    {
-        "id": "20580",
-        "name": "Hubble Space Telescope",
-    },
-]
-
-
 @app.route("/")
 def index():
     return render_template("index.html")
