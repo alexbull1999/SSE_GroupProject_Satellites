@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests
 import sqlite3
 from database import get_engine, DATABASE_URL, init_db, find_satellites_by_name
@@ -299,3 +299,90 @@ def search():
         results = find_satellites_by_name(query)
         return jsonify(results)  # return the results as JSON
     return jsonify([])  # return an empty list if no query
+
+
+# dummy data for satellites
+all_satellites = [
+    {
+        "id": "25544",
+        "name": "International Space Station",
+    },
+    {
+        "id": "20580",
+        "name": "Hubble Space Telescope",
+    },
+]
+
+# dummy data for user accounts
+user_info = {
+    "AlexB": {
+        "username": "AlexB",
+        "countries": ["USA", "India"],
+        "satellites": ["20580", "25544"],
+    },
+    "RobL": {"username": "RobL"},
+    "SermilaI": {"username": "SermilaI"},
+    "TimJ": {
+        "username": "TimJ",
+        "countries": [],
+        "satellites": ["25544"],
+    },
+}
+
+@app.route("/country/<country_name>", methods=["GET"])
+def country_details(country_name):
+    # for now placeholder. update with sermilla code
+    return f"Details for country: {country_name} (this is a placeholder) "
+
+
+@app.route("/create_account", methods=["POST"])
+def create_account():
+    data = request.get_json()
+    username = data.get("username")
+    # check if username already exists
+    if username in user_info:
+        return (
+            jsonify({"error": "User already exists"}),
+            400,
+        )  # return in jsonify so java can read it.
+    user_info[username] = {"username": username}
+    return jsonify({"message": "Account created successfully"}), 200
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data.get("username")
+    # check if username exists
+    if username not in user_info:
+        return jsonify({"error": "User does not exist"}), 400
+    return jsonify({"message": "Login successful"}), 200
+
+
+
+@app.route("/account/<username>")
+def account(username):
+    if username not in user_info:
+        return redirect(
+            url_for("login")
+        )  # redirect to home page if no account found
+
+    # retrive user data
+    user = user_info[username]
+
+    # convert satellites id to satellite name
+    satellites = [
+        next(sat for sat in all_satellites if sat["id"] == satellite_id)
+        for satellite_id in user.get("satellites", [])
+    ]
+
+    # get country names
+    countries = user.get("countries", [])
+
+    # Return the account page for hte user if the account exists
+    return render_template(
+        "account.html",
+        username=user["username"],
+        satellites=satellites,
+        countries=countries,
+    )

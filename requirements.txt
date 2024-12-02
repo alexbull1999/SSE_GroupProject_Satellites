@@ -37,8 +37,8 @@ pyogrio==0.10.0
 pyproj==3.7.0
 pytest==8.3.3
 python-dateutil==2.9.0.post0
-pytz==2024.2
 python-dotenv==1.0.1
+pytz==2024.2
 requests==2.32.3
 scramp==1.4.5
 shapely==2.0.6

@@ -82,20 +82,47 @@
     </div>
 
 
-    <!-- Add Project Banner -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-md w-4/5 sm:w-2/3 lg:w-1/2 text-center">
-        <h3 class="text-lg md:text-xl font-medium text-gray-200">Add Project</h3>
-        <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
+
+    <!-- Create Account and Login Section (Side by Side) -->
+
+    <div class="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-6 w-full sm:w-3/4 md:w-2/3 lg:w-1/2 mt-6">
+
+    <!-- Create Account Banner -->
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 text-center">
+        <h3 class="text-lg md:text-xl font-medium text-gray-200">Create Account</h3>
+        <div class="flex flex-col items-center justify-center space-y-4 mt-4">
             <input
                 type="text"
-                placeholder="Enter project details"
+                placeholder="Enter username"
                 class="w-full px-3 py-2 rounded text-gray-800"
+                id="create-username"
             />
             <button
-                class="w-full md:w-1/3 bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded">
-                Add
+                class="w-full md:w-1/3 bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded"
+                id="create-account-btn" onclick="createAccount()">
+                Create Account
             </button>
         </div>
     </div>
+
+    <!-- Login Banner -->
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 text-center">
+        <h3 class="text-lg md:text-xl font-medium text-gray-200">Login</h3>
+        <div class="flex flex-col items-center justify-center space-y-4 mt-4">
+            <input
+                type="text"
+                placeholder="Enter your username"
+                class="w-full px-3 py-2 rounded text-gray-800"
+                id="login-username"
+            />
+            <button
+                class="w-full md:w-1/3 bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
+                id="login-btn" onclick="login()">
+                Login
+            </button>
+        </div>
+    </div>
+
+    </div> <!-- End of flex container -->
 </section>
 {% endblock %}
