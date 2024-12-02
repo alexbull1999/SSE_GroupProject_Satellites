@@ -108,8 +108,8 @@ def test_account_display_valid_user(client):
     assert b"Countries You Are Tracking" in response.data
     assert b"USA" in response.data
     assert b"India" in response.data
-    assert b"International Space Station" in response.data
-    assert b"Hubble Space Telescope" in response.data
+    assert b"ISS" in response.data
+    assert b"HST" in response.data
 
 
 def test_account_display_valid_user_no_countries_or_satellites(client):
