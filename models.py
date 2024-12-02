@@ -21,4 +21,6 @@ country_table = Table(
     Column("latitude", Float),
     Column("longitude", Float),
     Column("name", String),
+    Column("area", Float),
+    Column("above_angle", Float),
 )

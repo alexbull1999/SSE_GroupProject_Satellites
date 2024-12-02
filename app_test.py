@@ -156,6 +156,8 @@ def test_country_table_columns(engine):
     assert "name" in column_names, "Column 'name' does not exist"
     assert "latitude" in column_names, "Column 'latitude' does not exist"
     assert "longitude" in column_names, "Column 'longitude' does not exist"
+    assert "area" in column_names, "Column 'area' does not exist"
+    assert "above_angle" in column_names, "Column 'above_angle' does not exist"
 
 def test_country_table_population(tmp_path, engine):
     """Test if country table populated properly"""
@@ -171,7 +173,7 @@ def test_country_table_population(tmp_path, engine):
     )
     df.write_csv(csv_path)
 
-    populate_country_table(csv_path, engine)
+    populate_country_table(csv_path, "country_area.csv", engine)
 
     with engine.connect() as connection:
         result = connection.execute(
@@ -185,3 +187,18 @@ def test_country_table_population(tmp_path, engine):
     assert rows[0]["name"] is not None, "Expected country name to be populated"
     assert rows[0]["latitude"] is not None, "Expected country latitude to be populated"
     assert rows[0]["longitude"] is not None, "Expected country longitude to be populated"
+    assert rows[0]["area"] is not None, "Expected country area to be populated"
+    assert rows[0]["above_angle"] is not None, "Expected country above_angle to be populated"
+
+
+def test_above_angle_calculation(engine):
+    """Test if 'above_angle' values are calculated correctly"""
+    earth_area = 197_000_000
+    with engine.connect() as connection:
+        result = connection.execute(select(get_country_table.c.name, get_country_table.c.area, get_country_table.c.above_angle)).fetchall()
+
+    for row in result:
+        name, area, above_angle = row
+
+        expected_above_angle = round(area / earth_area, 1)
+        assert above_angle == expected_above_angle, f"Incorrect 'above_angle'"
