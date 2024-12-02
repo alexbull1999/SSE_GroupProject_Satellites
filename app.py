@@ -11,6 +11,8 @@ import pycountry
 load_dotenv()
 app = Flask(__name__)
 
+engine = get_engine(DATABASE_URL)
+
 # dummy data for satellites
 all_satellites = [
     {

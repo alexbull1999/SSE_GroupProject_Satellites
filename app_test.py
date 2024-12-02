@@ -1,6 +1,5 @@
 from unittest.mock import patch
 from app import process_query, get_satellite_data, app, user_info
-from models import satelliteTable
 from database import read_and_insert_csv, init_db, get_engine
 import pytest
 from sqlalchemy import inspect, select
