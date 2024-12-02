@@ -1,7 +1,13 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests
 import sqlite3
-from database import get_engine, DATABASE_URL, init_db, find_satellites_by_name, populate_country_table
+from database import (
+    get_engine,
+    DATABASE_URL,
+    init_db,
+    find_satellites_by_name,
+    populate_country_table,
+)
 import os
 from dotenv import load_dotenv
 import ephem

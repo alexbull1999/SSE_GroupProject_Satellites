@@ -1,4 +1,3 @@
-from numbers import Real
 from sqlalchemy import Table, Column, Integer, String, MetaData, Float
 from sqlalchemy.orm import declarative_base
 
