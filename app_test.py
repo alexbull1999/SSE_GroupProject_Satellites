@@ -27,6 +27,7 @@ def test_homepage(client):
     # test should return with content from the homepage
     assert b"Track To The Future" in response.data
 
+
 @pytest.mark.skip
 def test_satellite_search(client):
     """Test the satellite search."""
@@ -34,6 +35,7 @@ def test_satellite_search(client):
     assert response.status_code == 200
     # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
+
 
 @pytest.mark.skip
 def test_invalid_search(client):
