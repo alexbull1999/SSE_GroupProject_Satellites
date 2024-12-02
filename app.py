@@ -19,6 +19,7 @@ if __name__ == "__main__":
     init_db(DATABASE_URL)
     app.run(debug=True)
 
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -329,6 +330,7 @@ user_info = {
     },
 }
 
+
 @app.route("/country/<country_name>", methods=["GET"])
 def country_details(country_name):
     # for now placeholder. update with sermilla code
@@ -357,7 +359,6 @@ def login():
     if username not in user_info:
         return jsonify({"error": "User does not exist"}), 400
     return jsonify({"message": "Login successful"}), 200
-
 
 
 @app.route("/account/<username>")
