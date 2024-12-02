@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from models import satellite_table, Base, country_table
 import polars as pl
 import sqlite3
+from math import acos, pi, degrees
 
 # Define the SQLite database file
 DATABASE_FILE = "app_database.db"  # SQLite database file name
@@ -76,6 +77,23 @@ def find_satellites_by_name(search_term):
     connection.close()
     return results
 
+def calculate_above_angle(country_area):
+    """Caclulate the above angle for a given country's area
+    using the coverage radius"""
+    earth_radius = 6371 #Earth radius in km
+    earth_surface_area = 4 * pi * earth_radius**2 #Total surface area
+
+    #Normalize country area relative to Earth's surface
+    normalized_area = country_area / earth_surface_area
+
+    #Calculate the above angle (spherical cap formula)
+    if normalized_area < 1e-6: #Avoid extremely small areas
+        return 5.0 #Min angle threshold
+
+    angle_radians = acos(1 - (normalized_area * 2 * pi))
+    angle_degrees = degrees(angle_radians)
+
+    return max(angle_degrees, 5.0)
 
 def populate_country_table(csv_file_path, area_csv_file_path, engine):
     """Populates country table with country names and coordinates"""
@@ -105,10 +123,9 @@ def populate_country_table(csv_file_path, area_csv_file_path, engine):
         )
         merged_df = merged_df.with_columns(pl.col("name").str.to_uppercase())
 
-        earth_area = 197_000_000
-        merged_df = merged_df.with_columns(
-            (merged_df["area"] / earth_area).round(1).alias("above_angle")
-        )
+        above_angle = [calculate_above_angle(area) for area in merged_df["area"].to_list()]
+        merged_df = merged_df.with_columns(pl.Series("above_angle", above_angle))
+
 
         # select and map required columns
         countries = [
@@ -150,3 +167,7 @@ if __name__ == "__main__":
     process_multiple_csv(csv_files)
 
     populate_country_table("countries.csv", "country_area.csv", engine)
+
+
+
+

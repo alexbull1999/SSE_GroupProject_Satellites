@@ -263,22 +263,3 @@ def test_country_table_population(tmp_path, engine):
     assert (
         rows[0]["above_angle"] is not None
     ), "Expected country above_angle to be populated"
-
-
-def test_above_angle_calculation(engine):
-    """Test if 'above_angle' values are calculated correctly"""
-    earth_area = 197_000_000
-    with engine.connect() as connection:
-        result = connection.execute(
-            select(
-                get_country_table.c.name,
-                get_country_table.c.area,
-                get_country_table.c.above_angle,
-            )
-        ).fetchall()
-
-    for row in result:
-        name, area, above_angle = row
-
-        expected_above_angle = round(area / earth_area, 1)
-        assert above_angle == expected_above_angle, "Incorrect 'above_angle'"
