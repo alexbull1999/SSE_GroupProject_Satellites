@@ -89,97 +89,66 @@ def process_query(query):
 
 N2YO_API_BASE = "https://api.n2yo.com/rest/v1/satellite/"
 
+# Hardcoded country data try
+country_data = {
+    "USA": {"lat": 37.0902, "lng": -95.7129},
+    "India": {"lat": 20.5937, "lng": 78.9629},
+    "Turkey": {"lat": 38.9637, "lng": 35.2433},
+}
 
 @app.route("/country", methods=["POST"])
 def get_satellites_over_country():
     """
-    Retrieve satellites currently over a specified country using the N2YO API.
-    """
-
+           Retrieve satellites currently over a specified country using the N2YO API.
+           """
     # Extract the country name from the form input
     input_country = request.form.get("country")
 
-    # If no country specified, render the country.html page with error message
-    if not input_country:
+    # Render the country.html page with an error if the input country is not in the country database
+    if input_country not in country_data:
         return render_template(
             "country.html",
             country=None,  # No country to display
             satellites=[],  # No satellites found
-            message="Please specify a country",
-        )  # Error message for the user
-
-    # Initialize an empty list to store satellites found above the country
-    satellites_over_country = []
-
-    # Hardcoded country data try
-    country_data = {
-        "USA": {"lat": 37.0902, "lng": -95.7129},
-        "India": {"lat": 20.5937, "lng": 78.9629},
-        "Turkey": {"lat": 38.9637, "lng": 35.2433},
-    }
-
-    # Render page with an error if input country is not in the country database
-    if input_country not in country_data:
-        return render_template(
-            "country.html",
-            country=input_country,
-            satellites=[],
-            message="Country not found.",
-        )
+            message="Country not found.")  # Error message for the user
 
     # Extract the latitude and longitude for the specified country
-    country_coords = country_data[input_country]
-    observer_lat = country_coords["lat"]
-    observer_lng = country_coords["lng"]
+    observer_lat = country_data[input_country]["lat"]
+    observer_lng = country_data[input_country]["lng"]
 
     # Define additional parameters for the satellite search
     observer_alt = 0  # Default altitude in meters
-    search_radius = 90  # Search radius in degrees
-    category_id = 0  # 0 to search for all satellite categories
+    search_radius = 10  # Search radius in degrees
+    category_id = 0  # 0 for all categories
 
-    try:
-        API_KEY = os.getenv("API_KEY")
-        # Construct the API request URL for fetching satellites above country
-        start_url = f"{N2YO_API_BASE}above/{observer_lat}/"
-        middle_url = f"{observer_lng}/{observer_alt}/"
-        end_url = f"{search_radius}/{category_id}/&apiKey={API_KEY}"
-        # Send the request to the N2YO API
-        response = requests.get(start_url + middle_url + end_url)
+    satellites = []
 
-        # Return an error message if response status not successful
-        if response.status_code != 200:
-            return render_template(
-                "country.html",
-                country=input_country,
-                satellites=[],
-                message="Failed to fetch data from N2YO API.",
-            )
+    # Extract the API key
+    API_KEY = os.getenv("API_KEY")
+    # Construct the API request URL for fetching satellites above the country
+    url = f"{N2YO_API_BASE}above/{observer_lat}/{observer_lng}/{observer_alt}/{search_radius}/{category_id}/&apiKey={API_KEY}"
+    # Send the request to the N2YO API
+    response = requests.get(url)
 
+    # Process the API response
+    if response.status_code == 200:  # Check if the request was successful
         # Parse the response JSON to extract satellite data
         data = response.json()
+        for sat in data.get("above", []):  # Iterate through the satellites in the "above" field
+            satellites.append({
+                "id": sat.get("satid"),
+                "name": sat.get("satname"),
+            })
+    else:
+        satellites = []  # Set an empty list if the request was unsuccessful
 
-        # Loop through satellites listed in the "above" field of the response
-        for sat in data.get("above", []):
-            satellites_over_country.append(
-                {
-                    "id": sat.get("satid"),
-                    "name": sat.get("satname"),
-                    "latitude": sat.get("satlat"),
-                    "longitude": sat.get("satlng"),
-                }
-            )
-
-        # Render country.html with the found satellites and country name
-        over = satellites_over_country
-        ic = input_country
-        return render_template("country.html", country=ic, satellites=over)
-
-    except Exception as e:
-        # Handle any unexpected exceptions during API request / data processing
-        ic = input_country
-        return render_template(
-            "country.html", country=ic, satellites=[], message=str(e)
-        )
+    # Render the country.html template with the satellite data and the selected country
+    return render_template(
+        "country.html",
+        country=input_country,  # The country name for the display
+        satellites=satellites,  # The list of satellites above the country
+        message=None if satellites else "No satellites currently above this country"
+    )
 
 
 if __name__ == "__main__":
