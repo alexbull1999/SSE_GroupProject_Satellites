@@ -167,15 +167,6 @@ if __name__ == "__main__":
     init_db(DATABASE_URL)
     app.run(debug=True)
 
-# url = f"https://tle.ivanstanojevic.me/api/tle/{id}"
-# data = []
-# response = requests.get(url)
-# if response.status_code == 200:
-# data = response.json()
-
-#       return render_template("satellite.html", satellite=satellite_data)
-# function to mock test api
-
 
 def get_satellite_data(satellite_id):
     start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
@@ -283,18 +274,6 @@ def search():
     return jsonify([])  # return an empty list if no query
 
 
-# dummy data for satellites
-all_satellites = [
-    {
-        "id": "25544",
-        "name": "International Space Station",
-    },
-    {
-        "id": "20580",
-        "name": "Hubble Space Telescope",
-    },
-]
-
 # dummy data for user accounts
 user_info = {
     "AlexB": {
@@ -342,6 +321,23 @@ def login():
     return jsonify({"message": "Login successful"}), 200
 
 
+# Helper function to get satellite name by id.
+def get_satellite_by_id(satellite_id):
+    connection = sqlite3.connect("app_database.db")
+    cursor = connection.cursor()
+    query = "SELECT * FROM satellite WHERE id = ?"
+    cursor.execute(query, (satellite_id,))
+    result = cursor.fetchone()
+    connection.close()
+    if result:
+        # Return a dictionary or an object with the necessary details
+        return {
+            "id": result[0],  # Assuming the id is in the first column
+            "name": result[1],  # Assuming the name is in the second column
+        }
+    return None
+
+
 @app.route("/account/<username>")
 def account(username):
     if username not in user_info:
@@ -353,7 +349,7 @@ def account(username):
 
     # convert satellites id to satellite name
     satellites = [
-        next(sat for sat in all_satellites if sat["id"] == satellite_id)
+        get_satellite_by_id(satellite_id)
         for satellite_id in user.get("satellites", [])
     ]
 
