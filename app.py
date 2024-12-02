@@ -4,6 +4,9 @@ import sqlite3
 from database import get_engine, DATABASE_URL, init_db, find_satellites_by_name
 import os
 from dotenv import load_dotenv
+import plotly.graph_objects as go
+import pycountry
+
 
 load_dotenv()
 app = Flask(__name__)
@@ -149,6 +152,84 @@ def get_satellites_over_country():
         satellites=satellites,  # The list of satellites above the country
         message=None if satellites else "No satellites currently above this country"
     )
+
+@app.route("/country", methods=["POST"])
+def generate_map(country_name, satellites):
+    # Get the country's ISO Alpha-2 code
+    country = pycountry.countries.get(name=country_name)
+    if not country:
+        raise ValueError(f"Country '{country_name}' not found.")
+
+    if country_name not in country_data:
+        raise ValueError(f"Coordinates for '{country_name}' not found.")
+
+    lat, lng = country_data[country_name]["lat"], country_data[country_name]["lng"]
+
+    # Create the globe map
+    fig = go.Figure()
+
+    # Add scattergeo layer for the country
+    fig.add_trace(
+        go.Scattergeo(
+            lon=[lng],
+            lat=[lat],
+            mode="markers+text",
+            text=country_name,
+            textposition="top center",
+            marker=dict(
+                size=12,
+                symbol="circle",
+                color="cyan",
+                line=dict(width=2, color="white"),
+            ),
+        )
+    )
+
+    # Add scattergeo layer for satellites
+    for sat in satellites:
+        fig.add_trace(
+            go.Scattergeo(
+                lon=[sat["longitude"]],
+                lat=[sat["latitude"]],
+                mode="markers",
+                marker=dict(
+                    size=8,
+                    symbol="star",
+                    color="yellow",
+                    line=dict(width=1, color="darkorange"),
+                ),
+                name=sat["name"],
+            )
+        )
+
+    # Style the map
+    fig.update_geos(
+        projection_type="orthographic",
+        showcoastlines=True,
+        coastlinecolor="white",
+        showcountries=True,
+        countrycolor="white",
+        showland=False,
+        showocean=False,
+        showlakes=False,
+        showrivers=False,
+        bgcolor="rgba(0,0,0,0)",  # Transparent background
+    )
+
+    fig.update_layout(
+        title=f"Satellites Over {country_name}",
+        title_x=0.5,
+        title_font=dict(size=24, color="white"),
+        margin=dict(l=0, r=0, t=50, b=0),
+        paper_bgcolor="rgba(0,0,0,0)",  # Transparent canvas
+    )
+
+    # Save the map in the static directory
+    static_dir = os.path.join(os.getcwd(), "static", "maps")
+    os.makedirs(static_dir, exist_ok=True)  # Ensure directory exists
+    file_path = os.path.join(static_dir, f"{country_name}_map.html")
+    fig.write_html(file_path)
+    return f"maps/{country_name}_map.html"  # Return the relative path
 
 
 if __name__ == "__main__":
