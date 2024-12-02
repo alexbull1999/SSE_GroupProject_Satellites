@@ -1,11 +1,12 @@
 from unittest.mock import patch
 from app import process_query, get_satellite_data, app, user_info
-from database import read_and_insert_csv, init_db, get_engine
+from database import read_and_insert_csv, init_db, get_engine, populate_country_table
 import pytest
 from sqlalchemy import inspect, select
 import polars as pl
 import os
 from models import satellite_table as get_satellite_table
+from models import country_table as get_country_table
 
 
 def test_knows_about_moon():
@@ -50,7 +51,6 @@ def test_clickable_satellite(client):
     assert response.status_code == 200
     # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
-
 
 def test_clickable_country(client):
     """test the clicking on a country in user page"""
@@ -118,7 +118,6 @@ def test_account_display_valid_user_no_countries_or_satellites(client):
     assert response.status_code == 200
     assert b"No satellites being tracked" in response.data
     assert b"No countries being tracked" in response.data
-
 
 @patch("requests.get")
 def test_api_satellite(mock_get):
@@ -202,3 +201,66 @@ def test_csv_import(engine, sample_csv):
     assert rows[0]["name"] == "ISS (ZARYA)"
     assert rows[1]["id"] == 43205
     assert rows[1]["name"] == "STARLINK-1"
+
+
+#New tests for country table
+def test_country_table_exists(engine):
+    """Test if country table exists in database"""
+    inspector = inspect(engine)
+    tables = inspector.get_table_names()
+    assert "country" in tables, "Table 'country' does not exist"
+
+def test_country_table_columns(engine):
+    """Test if country table has correct columns"""
+    inspector = inspect(engine)
+    columns = inspector.get_columns("country")
+    column_names = [col["name"] for col in columns]
+    assert "name" in column_names, "Column 'name' does not exist"
+    assert "latitude" in column_names, "Column 'latitude' does not exist"
+    assert "longitude" in column_names, "Column 'longitude' does not exist"
+    assert "area" in column_names, "Column 'area' does not exist"
+    assert "above_angle" in column_names, "Column 'above_angle' does not exist"
+
+def test_country_table_population(tmp_path, engine):
+    """Test if country table populated properly"""
+
+    csv_path = tmp_path / "countries.csv"
+    df = pl.DataFrame(
+        {
+            "country": ["AUS", "GB"],
+            "latitude": [10.0, 20.0],
+            "longitude": [-10.0, -20.0],
+            "name": ["Australia", "Great Britain"],
+        }
+    )
+    df.write_csv(csv_path)
+
+    populate_country_table(csv_path, "country_area.csv", engine)
+
+    with engine.connect() as connection:
+        result = connection.execute(
+            select(get_country_table)
+        ).mappings()
+        rows = list(result)
+
+
+    #Verify that at least some countries were populates
+    assert len(rows) > 0, "Country table is empty"
+    assert rows[0]["name"] is not None, "Expected country name to be populated"
+    assert rows[0]["latitude"] is not None, "Expected country latitude to be populated"
+    assert rows[0]["longitude"] is not None, "Expected country longitude to be populated"
+    assert rows[0]["area"] is not None, "Expected country area to be populated"
+    assert rows[0]["above_angle"] is not None, "Expected country above_angle to be populated"
+
+
+def test_above_angle_calculation(engine):
+    """Test if 'above_angle' values are calculated correctly"""
+    earth_area = 197_000_000
+    with engine.connect() as connection:
+        result = connection.execute(select(get_country_table.c.name, get_country_table.c.area, get_country_table.c.above_angle)).fetchall()
+
+    for row in result:
+        name, area, above_angle = row
+
+        expected_above_angle = round(area / earth_area, 1)
+        assert above_angle == expected_above_angle, f"Incorrect 'above_angle'"

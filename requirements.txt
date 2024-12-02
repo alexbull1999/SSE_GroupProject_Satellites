@@ -9,10 +9,10 @@ exceptiongroup==1.2.2
 flake8==7.1.1
 Flask==3.1.0
 Flask-SQLAlchemy==3.1.1
-geographiclib==2.0
-geopandas==1.0.1
-geopy==2.4.1
 greenlet==3.1.1
+geographiclib==2.0
+geopy==2.4.1
+geopandas==1.0.1
 idna==3.10
 iniconfig==2.0.0
 itsdangerous==2.2.0
