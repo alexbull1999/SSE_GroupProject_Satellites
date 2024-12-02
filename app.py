@@ -356,8 +356,7 @@ def account(username):
 
     # convert satellites id to satellite name
     satellites = [
-        get_satellite_by_id(satellite_id)
-        for satellite_id in user.get("satellites", [])
+        get_satellite_by_id(satellite_id) for satellite_id in user.get("satellites", [])
     ]
 
     # get country names
