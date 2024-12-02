@@ -364,9 +364,8 @@ def login():
 @app.route("/account/<username>")
 def account(username):
     if username not in user_info:
-        return redirect(
-            url_for("login")
-        )  # redirect to home page if no account found
+        return redirect(url_for("login"))
+        # redirect to home page if no account found
 
     # retrive user data
     user = user_info[username]

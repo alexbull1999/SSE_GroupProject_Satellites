@@ -68,6 +68,7 @@
                             document.getElementById('search-bar').value = satellite[1];
                             dropdown.innerHTML = '';
                             dropdown.style.display = 'none'; //hide the dropdown again
+                            document.querySelector('form').submit(); // Submit the form
                         };
 
                         dropdown.appendChild(item);
@@ -100,9 +101,9 @@
         <div class="flex-1">
             <!-- Header Section -->
             <header class="text-center p-6">
-                <h1 class="text-4xl md:text-6xl font-bold text-indigo-500">
+                <a href="{{ url_for('index') }}" class="text-4xl md:text-6xl font-bold text-indigo-500">
                     Track To The Future
-                </h1>
+                </a>
                 <p class="mt-4 text-lg md:text-xl">
                     Explore the cosmos with us!
                 </p>
