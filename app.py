@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import sqlite3
-from database import get_engine, DATABASE_URL, init_db, find_satellites_by_name
+from database import get_engine, DATABASE_URL, init_db, find_satellites_by_name, populate_country_table
 import os
 from dotenv import load_dotenv
 
@@ -14,6 +14,7 @@ engine = get_engine(DATABASE_URL)
 
 if __name__ == "__main__":
     init_db(DATABASE_URL)
+    populate_country_table("countries.csv", engine)
     app.run(debug=True)
 
 
