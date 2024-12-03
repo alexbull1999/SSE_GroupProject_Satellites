@@ -43,6 +43,60 @@
             />
         </div>
     </section>
+
+<div id="map" style="height: 500px;"></div>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+
+<script>
+    // Satellite data from Flask
+    const satelliteName = "{{ satellite.name }}";
+    const currentLatitudeDMS = "{{ satellite.lat }}";
+    const currentLongitudeDMS = "{{ satellite.long }}";
+    const observerLatitude = {{ observer_lat }};
+    const observerLongitude = {{ observer_lng }};
+    const nextPassUTC = {{ next_pass | default('null', true) }}; //Convert UTC time
+
+    //Helper function to convert DMS to decimal
+    function dmsToDecimal(dms) {
+        const [degrees, minutes, seconds] = dms.split(":").map(parseFloat);
+        const decimal = Math.abs(degrees) + (minutes/60) + (seconds / 3600);
+        return degrees < 0 ? -decimal : decimal;
+    }
+
+    //convert DMS to decimal for satellite positions
+    const currentLatitude = dmsToDecimal(currentLatitudeDMS);
+    const currentLongitude = dmsToDecimal(currentLongitudeDMS);
+
+    //Initialize the map
+    const map = L.map('map').setView([currentLatitude, currentLongitude], 3);
+
+    //Add a base layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+    }).addTo(map);
+
+    // Add marker for satellite's current position
+    L.marker([currentLatitude, currentLongitude])
+        .addTo(map)
+        .bindPopup(`<b>${satelliteName}</b><br>Lat: ${currentLatitude}<br>Lon: ${currentLongitude}`)
+        .openPopup();
+
+    //Add marker for observer's location
+    L.marker([observerLatitude, observerLongitude])
+        .addTo(map)
+        .bindPopup(`<b>Your Location</b><br>Lat: ${observerLatitude}<br><br>Lon: ${observerLongitude}`);
+
+    // Add callout for next visible pass
+    if (nextPassUTC) {
+        const nextPassDate = new Date(nextPassUTC * 1000); //Convert UTC timestamp to JS data
+        L.marker([observerLatitude, observerLongitude])
+            .addTo(map)
+            .bindPopup(`<b>Next Visible Pass:</b><br>${nextPassDate.toLocaleString()}`)
+            .openPopup();
+    }
+</script>
+
 </main>
 {% endblock %}
 
