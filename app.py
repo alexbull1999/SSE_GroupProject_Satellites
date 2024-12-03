@@ -43,6 +43,14 @@ def satellite():
 
     # Connect to the database and fetch corresponding satellite ID
     try:
+        #Get observer location
+        observer_location = get_observer_location()
+        if not observer_location:
+            return "Could not determine observer location", 500
+
+        observer_lat, observer_lng = observer_location
+        observer_alt = 0 # set observer altitude to sea level
+
         connection = sqlite3.connect("app_database.db")
         cursor = connection.cursor()
 
@@ -58,19 +66,57 @@ def satellite():
             satellite_id = result[0]
             satellite_name = result[1]
             API_KEY = os.getenv("API_KEY")
-            start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
-            end_url = f"&apiKey={API_KEY}"
-            url = f"{start_url}{satellite_id}{end_url}"
-            response = requests.get(url)
-            if response.status_code == 200:
-                satellite_data = response.json()
-                image_url = fetch_satellite_image(satellite_name)
-                data = generateSatData(image_url, satellite_data)
-                return render_template("satellite.html", satellite=data)
+            NY20_API_BASE = "https://api.n2yo.com/rest/v1/satellite/"
+
+            #Fetch TLE data
+            tle_url = f"{NY20_API_BASE}tle/{satellite_id}&apiKey={API_KEY}"
+            tle_response = requests.get(tle_url)
+            if tle_response.status_code != 200:
+                return "Failed to fetch TLE data", 500
+            tle_data = tle_response.json()
+
+            #Fetch orbit data
+            orbit_url = f"{NY20_API_BASE}positions/{satellite_id}/{observer_lat}/{observer_lng}/{observer_alt}/10&apiKey={API_KEY}"
+            orbit_response = requests.get(orbit_url)
+            if orbit_response.status_code != 200:
+                return "Failed to fetch Orbit data", 500
+            orbit_data = orbit_response.json()
+
+            #Fetch visible passes
+            days = 10 #Max prediction range
+            min_visibility = 300 #min visibility in seconds
+            passes_url = f"{NY20_API_BASE}visualpasses/{satellite_id}/{observer_lat}/{observer_lng}/{observer_alt}/{days}/{min_visibility}&apiKey={API_KEY}"
+            passes_response = requests.get(passes_url)
+            if passes_response.status_code != 200:
+                return "Failed to fetch visible passes data", 500
+            passes_data = passes_response.json()
+
+            #Extract next visible pass
+            next_pass = None
+            if passes_data.get("passes"):
+                next_pass = passes_data["passes"][0]["startUTC"] #Get pass time
+
+            #Fetch satellite image
+            image_url = fetch_satellite_image(satellite_name)
+
+            #Generate satellite data for template
+            data = generateSatData(image_url, tle_data)
+
+            #Render template with all the data
+            return render_template(
+                "satellite.html",
+                satellite=data,
+                observer_lat=observer_lat,
+                observer_lng=observer_lng,
+                orbit_data=orbit_data,
+                next_pass=next_pass,
+            )
         else:
-            return "404 Not Found", 404
+            return "Satellite not found", 404
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 @app.route("/satellite/<int:satellite_id>", methods=["GET"])
@@ -221,6 +267,7 @@ def pyephem(tle):
     elevation = sat.elevation / 1000
     ov = math.sqrt(GRAVITY / (RADIUS + elevation))
     ground_speed = ov * (RADIUS / (RADIUS + elevation))
+
 
     data = {
         "lat": lat,
@@ -442,3 +489,16 @@ def fetch_satellite_image(satellite_name):
     return (
         "https://wmo.int/sites/default/files/2023-03/AdobeStock_580430822.jpeg"
     )
+
+def get_observer_location():
+    """Fetches the observer's latitude and longitude based on their public API"""
+
+    try:
+        response = requests.get("http://ip-api.com/json")
+        response.raise_for_status()
+        data = response.json()
+        return data.get("lat"), data.get("lon")
+    except Exception as e:
+        print(f"Error fetching location: {e}")
+        return None
+
