@@ -14,6 +14,8 @@ from dotenv import load_dotenv
 import ephem
 import math
 import pycountry
+import plotly.graph_objects as go
+
 
 load_dotenv()
 app = Flask(__name__)
@@ -160,7 +162,7 @@ def get_satellites_over_country():
                         }
                     )
             else:
-                return "Failed to retrieve satellite data from API"
+                return "Failed to retrieve satellite data from API", 500
 
             # Render the country.html template with the satellite data
             # and the selected country
@@ -169,7 +171,7 @@ def get_satellites_over_country():
                 "country.html",
                 country=input_country,  # The country name for the display
                 satellites=satellites,  # List of satellites above the country
-                message=None if satellites else error_message,
+                error_message=None if satellites else error_message,
             )
 
         else:

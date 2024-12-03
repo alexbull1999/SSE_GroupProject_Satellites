@@ -9,10 +9,10 @@
     {% if satellites %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for sat in satellites %}
-                <div class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
+                <a href="{{ url_for('satellite_by_id', satellite_id=sat.id)}}" class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
                     <h3 class="text-xl font-medium text-gray-200">{{ sat.name }}</h3>
                     <p class="text-gray-400">ID: {{ sat.id }}</p>
-                </div>
+                </a>
             {% endfor %}
         </div>
     {% else %}
