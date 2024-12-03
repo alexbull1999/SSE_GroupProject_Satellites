@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 import ephem
 import math
 import pycountry
-import plotly.graph_objects as go
 
 
 load_dotenv()
