@@ -6,12 +6,6 @@ from database import (
     DATABASE_URL,
     init_db,
     find_satellites_by_name,
-    get_satellite_by_id,
-    add_satellite_to_user,
-    get_user_satellites,
-    check_username_exists,
-    add_user,
-    get_satellite_id_by_name,
     populate_country_table,
     find_country_by_name,
 )
@@ -329,24 +323,14 @@ def country_details(country_name):
 def create_account():
     data = request.get_json()
     username = data.get("username")
-
-    # Check if username is provided
-    if not username:
-        return jsonify({"error": "Username is required"}), 400
-
-    # Check if the username already exists in the database
-    if check_username_exists(username):
+    # check if username already exists
+    if username in user_info:
         return (
             jsonify({"error": "User already exists"}),
             400,
-        )  # Return an error if username exists
-
-    # Add the user to the database
-    try:
-        add_user(username)
-        return jsonify({"message": "Account created successfully"}), 200
-    except Exception as e:
-        return jsonify({"error": f"Error creating account: {str(e)}"}), 500
+        )  # return in jsonify so java can read it.
+    user_info[username] = {"username": username}
+    return jsonify({"message": "Account created successfully"}), 200
 
 
 @app.route("/login", methods=["POST"])
@@ -354,67 +338,53 @@ def login():
     data = request.get_json()
     username = data.get("username")
     # check if username exists
-
-    if not check_username_exists(username):
+    if username not in user_info:
         return jsonify({"error": "User does not exist"}), 400
-
     return jsonify({"message": "Login successful"}), 200
+
+
+# Helper function to get satellite name by id.
+def get_satellite_by_id(satellite_id):
+    connection = sqlite3.connect("app_database.db")
+    cursor = connection.cursor()
+    query = "SELECT * FROM satellite WHERE id = ?"
+    cursor.execute(query, (satellite_id,))
+    result = cursor.fetchone()
+    connection.close()
+    if result:
+        # Return a dictionary or an object with the necessary details
+        return {
+            "id": result[0],  # Assuming the id is in the first column
+            "name": result[1],  # Assuming the name is in the second column
+        }
+    return None
 
 
 @app.route("/account/<username>")
 def account(username):
-    user = check_username_exists(username)
-    if not user:
-        return redirect(
-            url_for("login")
-        )  # redirect to home page if no account found
+    if username not in user_info:
+        return redirect(url_for("login"))
+        # redirect to home page if no account found
 
-    username = user["user_name"]
+    # retrive user data
+    user = user_info[username]
+
     # convert satellites id to satellite name
-    satellites = get_user_satellites(username)
+    satellites = [
+        get_satellite_by_id(satellite_id)
+        for satellite_id in user.get("satellites", [])
+    ]
 
     # get country names
-    # countries = get_user_countries(username)
+    countries = user.get("countries", [])
 
     # Return the account page for hte user if the account exists
     return render_template(
         "account.html",
-        username=user["user_name"],
+        username=user["username"],
         satellites=satellites,
-        # countries=countries,
+        countries=countries,
     )
-
-
-@app.route("/add_satellite", methods=["POST"])
-def add_satellite():
-    print(f"Received form data")
-    try:
-        data = request.get_json()  # This will parse the incoming JSON
-        username = data.get("username")
-        satellite_name = data.get("satellite_name")
-    except Exception as e:
-        return f"Error parsing JSON: {str(e)}", 400
-
-    print(
-        f"Received data: username={username}, satellite_name={satellite_name}"
-    )  # Debugging line
-
-    if not username or not satellite_name:
-        return "Invalid data", 400
-    try:
-        # Call the function to add the satellite to the user
-        add_satellite_to_user(username, satellite_name)
-
-        # Get the updated list of satellites for the user
-        updated_satellites = get_user_satellites(username)
-
-        # Return the updated list of satellites as JSON
-        return jsonify(updated_satellites)
-
-    except ValueError as ve:
-        return str(ve), 400
-    except Exception as e:
-        return f"Error: {e}", 500
 
 
 def fetch_satellite_image(satellite_name):
