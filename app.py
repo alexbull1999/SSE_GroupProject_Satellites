@@ -7,7 +7,7 @@ from database import (
     init_db,
     find_satellites_by_name,
     populate_country_table,
-    find_country_by_name
+    find_country_by_name,
 )
 import os
 from dotenv import load_dotenv
@@ -131,10 +131,11 @@ def get_satellites_over_country():
             if not API_KEY:
                 return "API key is missing in environment variables", 500
 
-            # Construct the API request URL for fetching satellites above the country
+            # Construct API request URL for fetching satellites above country
             NY20_API_BASE = "https://api.n2yo.com/rest/v1/satellite/"
             url = (
-                f"{NY20_API_BASE}above/{observer_lat}/{observer_lng}/{observer_alt}/"
+                f"{NY20_API_BASE}above/{observer_lat}/{observer_lng}/"
+                f"{observer_alt}/"
                 f"{search_radius}/{category_id}/&apiKey={API_KEY}"
             )
 
@@ -159,7 +160,7 @@ def get_satellites_over_country():
                         }
                     )
             else:
-                return "Failed to retrieve satellite data from API"  # Set an empty list if the request was unsuccessful
+                return "Failed to retrieve satellite data from API"
 
             # Render the country.html template with the satellite data
             # and the selected country
@@ -283,15 +284,15 @@ def search():
         return jsonify(results)  # return the results as JSON
     return jsonify([])  # return an empty list if no query
 
-#route to implement the suggested search for countries
+
+# route to implement the suggested search for countries
 @app.route("/country_search", methods=["GET"])
 def country_search():
     query = request.args.get("query")
     if query:
         results = find_country_by_name(query)
         return jsonify(results)
-    return jsonify([]) #return empty list if no query
-
+    return jsonify([])  # return empty list if no query
 
 
 # dummy data for user accounts

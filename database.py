@@ -77,6 +77,7 @@ def find_satellites_by_name(search_term):
     connection.close()
     return results
 
+
 def find_country_by_name(country_search):
     connection = sqlite3.connect("app_database.db")
     cursor = connection.cursor()
@@ -85,7 +86,6 @@ def find_country_by_name(country_search):
     results = cursor.fetchall()
     connection.close()
     return results
-
 
 
 def calculate_above_angle(country_area):
