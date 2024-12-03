@@ -2,65 +2,58 @@
 
 {% block content %}
 <main class="p-6">
-    <section class="max-w-4xl mx-auto bg-gray-800 rounded-lg p-6 shadow-lg flex items-center space-x-6">
-        <!-- Satellite Details -->
-        <div class="flex-1">
-            <h2 class="text-3xl font-bold text-indigo-400 mb-4">{{ satellite.name }}</h2>
-            <div class="space-y-4">
-                <div>
-                    <span class="font-semibold text-gray-300">NORAD ID:</span>
-                    <span class="text-white">{{ satellite.id }}</span>
-                </div>
-                <div>
-                    <span class="font-semibold text-gray-300">Current Latitude:</span>
-                    <span class="text-white">{{ satellite.lat }}</span>
-                </div>
-                <div>
-                    <span class="font-semibold text-gray-300">Current Longitude:</span>
-                    <span class="text-white">{{ satellite.long }}</span>
-                </div>
-                <div>
-                    <span class="font-semibold text-gray-300">Current Location:</span>
-                    <span class="text-white">{{ satellite.location }}</span>
-                </div>
-                <div>
-                    <span class="font-semibold text-gray-300">Elevation:</span>
-                    <span class="text-white">{{ satellite.elevation }}km</span>
-                </div>
-                <div>
-                    <span class="font-semibold text-gray-300">Ground Speed:</span>
-                    <span class="text-white">{{ satellite.ground_speed }}km/s</span>
+    <section class="max-w-4xl mx-auto bg-white rounded-lg p-8 shadow-xl">
+        <!-- Satellite Details and Image -->
+        <div class="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-10">
+
+            <!-- Satellite Details -->
+            <div class="flex-1 space-y-6">
+                <h2 class="text-3xl font-semibold text-gray-800">{{ satellite.name }}</h2> <!-- Accent Color Here -->
+
+                <div class="space-y-4">
+                    <div>
+                        <span class="font-semibold text-gray-500">NORAD ID:</span>
+                        <span class="text-gray-800">{{ satellite.id }}</span>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-500">Current Latitude:</span>
+                        <span class="text-gray-800">{{ satellite.lat }}</span>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-500">Current Longitude:</span>
+                        <span class="text-gray-800">{{ satellite.long }}</span>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-500">Current Location:</span>
+                        <span class="text-gray-800">{{ satellite.location }}</span>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-500">Elevation:</span>
+                        <span class="text-gray-800">{{ satellite.elevation }}km</span>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-500">Ground Speed:</span>
+                        <span class="text-gray-800">{{ satellite.ground_speed }}km/s</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Satellite Image -->
-        <div>
-            <img
-                src="{{ satellite.image_url if satellite.image_url else 'https://wmo.int/sites/default/files/2023-03/AdobeStock_580430822.jpeg' }}"
-                alt="Satellite Image"
-                class="w-80 h-80 rounded-full border-4 border-white object-cover shadow-lg"
-            />
+            <!-- Satellite Image -->
+            <div class="w-80 h-80">
+                <img
+                    src="{{ satellite.image_url if satellite.image_url else 'https://wmo.int/sites/default/files/2023-03/AdobeStock_580430822.jpeg' }}"
+                    alt="Satellite Image"
+                    class="w-full h-full rounded-full object-cover shadow-lg"
+                    style="border: 5px solid #DC143C;"
+                />
+            </div>
         </div>
     </section>
 </main>
+
 {% endblock %}
 
 
 
 
 
-    <!---
-<body>
-<ul>
-    <li>Name: {{ satellite["name"] }}</li>
-    <li>NORAD ID: {{ satellite["id"] }}</li>
-    <li>Latitude: {{ satellite["lat"] }}</li>
-    <li>Longitude: {{ satellite["long"] }}</li>
-    <li>Location: {{ satellite["location"] }}</li>
-    <li>Elevation: {{ satellite["elevation"]}}km above sea level!</li>
-    <li>Speed: {{ satellite["ground_speed"]}}km/s</li>
-</ul>
-</body>
-
-    --->

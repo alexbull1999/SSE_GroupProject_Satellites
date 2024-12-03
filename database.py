@@ -138,8 +138,9 @@ def populate_country_table(csv_file_path, area_csv_file_path, engine):
         above_angle = [
             calculate_above_angle(area) for area in merged_df["area"].to_list()
         ]
-        merged_df = merged_df.with_columns(
-            pl.Series("above_angle", above_angle)
+        merged_df = merged_df.with_columns(pl.Series(
+            "above_angle",
+            above_angle)
         )
 
         # select and map required columns

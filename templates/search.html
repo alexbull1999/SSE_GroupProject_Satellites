@@ -1,0 +1,195 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- Main Search Section within a single card -->
+<div class="w-4/5 sm:w-2/3 lg:w-1/2 mx-auto mt-10">
+    <!-- White background, rounded corners, and shadow -->
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+        <!-- Buttons to toggle between search forms -->
+        <div class="flex justify-center space-x-4 mb-6">
+            <button
+                id="satellite-button"
+                class="px-4 py-2 bg-[#DC143C] text-white rounded-lg hover:bg-red-700"
+                onclick="toggleSearchForm('satellite')">
+                Search by Satellite
+            </button>
+            <button
+                id="country-button"
+                class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-[#DC143C]"
+                onclick="toggleSearchForm('country')">
+                Search by Country
+            </button>
+        </div>
+
+        <!-- Satellite Search Form (initially visible) -->
+        <div id="satellite-form">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
+            <h3 class="text-lg md:text-xl font-medium text-gray-200">Search by Satellite</h3>
+            <form action="/satellite" method="GET" class="flex flex-col items-center justify-center space-y-4 mt-4">
+                <div class="relative w-full md:w-auto">
+                    <input
+                        type="text"
+                        id="search-bar"
+                        placeholder="Enter satellite name"
+                        name="name"
+                        autocomplete="off"
+                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300"
+                        oninput="searchSatellite()"
+                    />
+                    <div id="dropdown" class="dropdown-menu absolute left-0 w-full mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
+                </div>
+                <button type="submit"
+                        class="w-full md:w-2/3 bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                    Search
+                </button>
+            </form>
+        </div>
+        </div>
+
+
+        <!-- Country Search Form (initially hidden) -->
+        <div id="country-form" class="hidden">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
+            <h3 class="text-lg md:text-xl font-medium text-gray-200">Search by Country</h3>
+            <form action="/country" method="GET" class="flex flex-col items-center justify-center space-y-4 mt-4">
+                <div class="relative w-full md:w-auto">
+                    <input
+                        type="text"
+                        id="country-search-bar"
+                        placeholder="Enter country name"
+                        name="country"
+                        autocomplete="off"
+                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300"
+                        oninput="searchCountry()"
+                    />
+                    <div id="country-dropdown" class="dropdown-menu absolute left-0 w-full mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
+                </div>
+                <button type="submit"
+                        class="w-full md:w-2/3 bg-green-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                    Search
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to toggle between the search forms
+    function toggleSearchForm(formType) {
+        // Hide both forms initially
+        const satelliteForm = document.getElementById('satellite-form');
+        const countryForm = document.getElementById('country-form');
+
+        // Get the buttons
+        const satelliteButton = document.getElementById('satellite-button');
+        const countryButton = document.getElementById('country-button');
+
+        if (formType === 'satellite') {
+            // Show satellite form and hide country form
+            satelliteForm.classList.remove('hidden');
+            countryForm.classList.add('hidden');
+
+            // Change button colors
+            satelliteButton.classList.add('bg-[#DC143C]', 'hover:bg-red-700');
+            satelliteButton.classList.remove('bg-gray-700', 'hover:bg-gray-500');
+
+            countryButton.classList.add('bg-gray-700', 'hover:bg-gray-500');
+            countryButton.classList.remove('bg-[#DC143C]', 'hover:bg-red-700');
+        } else if (formType === 'country') {
+            // Show country form and hide satellite form
+            countryForm.classList.remove('hidden');
+            satelliteForm.classList.add('hidden');
+
+            // Change button colors
+            countryButton.classList.add('bg-[#DC143C]', 'hover:bg-red-700');
+            countryButton.classList.remove('bg-gray-700', 'hover:bg-gray-500');
+
+            satelliteButton.classList.add('bg-gray-700', 'hover:bg-gray-500');
+            satelliteButton.classList.remove('bg-[#DC143C]', 'hover:bg-red-700');
+        }
+    }
+
+    async function searchSatellite() {
+        const query = document.getElementById('search-bar').value.trim();
+        const dropdown = document.getElementById('dropdown')
+
+        //wait for at least 2 characters to be typed
+        if (query.length < 2) {
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+            const satellites = await response.json();
+
+            dropdown.innerHTML = ''; //Clear previous results
+            dropdown.style.display = 'none'; //hide if no results
+
+            if (satellites.length > 0) {
+                satellites.forEach(satellite => {
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.textContent = satellite[1]; //satellite name
+
+                    // handle click to autofill search bar
+                    item.onclick = () => {
+                        document.getElementById('search-bar').value = satellite[1];
+                        dropdown.innerHTML = '';
+                        dropdown.style.display = 'none'; //hide the dropdown again
+                        document.getElementById('satellite-form').submit(); // Submit the form
+                    };
+
+                    dropdown.appendChild(item);
+                });
+                dropdown.style.display = 'block'; //show the dropdown
+            }
+        } catch (error) {
+            console.error('Error fetching satellites:', error);
+        }
+    }
+    async function searchCountry() {
+        const query = document.getElementById('country-search-bar').value.trim();
+        const dropdown = document.getElementById('country-dropdown');
+
+        //Wait for at least 2 characters to be typed
+        if (query.length < 2) {
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        try {
+            const response = await fetch(`/country_search?query=${encodeURIComponent(query)}`);
+            const countries = await response.json();
+
+            dropdown.innerHTML = ''; //Clear previous results
+            dropdown.style.display = 'none'; //Hide if no results
+
+            if (countries.length > 0) {
+                countries.forEach(country => {
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.textContent = country[3] // Country name
+
+                    //Handle click to autofill search bar
+                    item.onclick = () => {
+                        document.getElementById('country-search-bar').value = country[3];
+                        dropdown.innerHTML = '';
+                        dropdown.style.display = 'none'; //Hide dropdown again
+                        document.getElementById('country-form').submit();
+                    };
+
+                    dropdown.appendChild(item);
+                });
+                dropdown.style.display = 'block'; //show dropdown
+            }
+        } catch (error) {
+            console.error('Error fetching countries:', error)
+        }
+    }
+</script>
+
+{% endblock %}
+
