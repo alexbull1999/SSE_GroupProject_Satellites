@@ -68,7 +68,7 @@
                             document.getElementById('search-bar').value = satellite[1];
                             dropdown.innerHTML = '';
                             dropdown.style.display = 'none'; //hide the dropdown again
-                            document.querySelector('form').submit(); // Submit the form
+                            document.getElementById('satellite-form').submit(); // Submit the form
                         };
 
                         dropdown.appendChild(item);
@@ -103,14 +103,14 @@
                     countries.forEach(country => {
                         const item = document.createElement('div');
                         item.className = 'dropdown-item';
-                        item.textContent = country[1] // Country name
+                        item.textContent = country[3] // Country name
 
                         //Handle click to autofill search bar
                         item.onclick = () => {
-                            document.getElementById('country-search-bar').value = country[1];
+                            document.getElementById('country-search-bar').value = country[3];
                             dropdown.innerHTML = '';
                             dropdown.style.display = 'none'; //Hide dropdown again
-                            document.querySelector('form').submit(); // Submit the form
+                            document.getElementById('country-form').submit();
                         };
 
                         dropdown.appendChild(item);

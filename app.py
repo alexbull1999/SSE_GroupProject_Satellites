@@ -7,6 +7,7 @@ from database import (
     init_db,
     find_satellites_by_name,
     populate_country_table,
+    find_country_by_name
 )
 import os
 from dotenv import load_dotenv
@@ -94,16 +95,6 @@ def process_query(query):
         return "Moon made of cheese"
 
 
-N2YO_API_BASE = "https://api.n2yo.com/rest/v1/satellite/"
-
-# Hardcoded country data try
-country_data = {
-    "USA": {"lat": 37.0902, "lng": -95.7129},
-    "India": {"lat": 20.5937, "lng": 78.9629},
-    "Turkey": {"lat": 38.9637, "lng": 35.2433},
-}
-
-
 @app.route("/country", methods=["GET"])
 def get_satellites_over_country():
     """
@@ -121,7 +112,7 @@ def get_satellites_over_country():
         cursor = connection.cursor()
 
         # Query to get the satellite ID based on the name
-        query = "SELECT * FROM satellite WHERE name = ?"
+        query = "SELECT * FROM country WHERE name = ?"
         cursor.execute(query, (input_country,))
         result = cursor.fetchone()  # Fetch first result
 
@@ -291,6 +282,16 @@ def search():
         results = find_satellites_by_name(query)
         return jsonify(results)  # return the results as JSON
     return jsonify([])  # return an empty list if no query
+
+#route to implement the suggested search for countries
+@app.route("/country_search", methods=["GET"])
+def country_search():
+    query = request.args.get("query")
+    if query:
+        results = find_country_by_name(query)
+        return jsonify(results)
+    return jsonify([]) #return empty list if no query
+
 
 
 # dummy data for user accounts
