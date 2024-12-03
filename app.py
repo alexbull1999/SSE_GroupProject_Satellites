@@ -56,6 +56,7 @@ def satellite():
         # Check if result was found
         if result:
             satellite_id = result[0]
+            satellite_name = result[1]
             API_KEY = os.getenv("API_KEY")
             start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
             end_url = f"&apiKey={API_KEY}"
@@ -63,9 +64,7 @@ def satellite():
             response = requests.get(url)
             if response.status_code == 200:
                 satellite_data = response.json()
-                image_url = None
-                if "url" in result:
-                    image_url = url
+                image_url = fetch_satellite_image(satellite_name, satellite_id)
                 data = generateSatData(image_url, satellite_data)
                 return render_template("satellite.html", satellite=data)
         else:
@@ -235,9 +234,10 @@ def pyephem(tle):
 
 
 def getlocation(lat, long):
+    WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
     url_start = "https://api.openweathermap.org/geo/1.0/reverse?"
     url_lat_long = f"lat={dms_to_decimal(lat)}&lon={dms_to_decimal(long)}"
-    url_end = "&limit=5&appid=41e586f2e94d706bdda4da03e56922e5"
+    url_end = f"&limit=5&appid={WEATHER_API_KEY}"
     response = requests.get(url_start + url_lat_long + url_end)
     if response.status_code == 200:
         location = response.json()
@@ -385,3 +385,49 @@ def account(username):
         satellites=satellites,
         countries=countries,
     )
+
+def fetch_satellite_image(satellite_name, satellite_id):
+    """Fetch a satellite image URL dynamically using Google custom
+    search API"""
+
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    CX = os.getenv("GOOGLE_CX")
+
+    satellite_name = satellite_name.strip().upper()
+
+    curated_images = {
+        "HST": "https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg",
+        "ISS (ZARYA)": "https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/e7e2/live/bea2c100-3539-11ef-a647-6fc50b20e53e.jpg"
+    }
+
+    if satellite_name in curated_images:
+        return curated_images[satellite_name]
+
+    if not GOOGLE_API_KEY or not CX:
+        return 'https://wmo.int/sites/default/files/2023-03/AdobeStock_580430822.jpeg'
+
+    search_query = f"{satellite_name} satellite {satellite_id}"
+    url = f"https://www.googleapis.com/customsearch/v1"
+    params = {
+        "q": search_query,
+        "cx": CX,
+        "key": GOOGLE_API_KEY,
+        "searchType": "image",
+        "num": 1, #Fetch only the first result
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        #Extract the image URL
+        items = data.get("items", [])
+        if items:
+            return items[0]["link"] #return first image url
+
+    except requests.RequestException as e:
+        print(f"Error fetching image: {e}")
+
+    return "https://wmo.int/sites/default/files/2023-03/AdobeStock_580430822.jpeg"
+
