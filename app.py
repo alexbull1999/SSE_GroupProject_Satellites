@@ -12,6 +12,7 @@ from database import (
     check_username_exists,
     add_user,
     get_satellite_id_by_name,
+    delete_satellite_from_user
 )
 import os
 from dotenv import load_dotenv
@@ -417,3 +418,60 @@ def add_satellite():
         return str(ve), 400
     except Exception as e:
         return f"Error: {e}", 500
+
+@app.route("/delete_satellite", methods=["POST"])
+def delete_satellite():
+    print(f"Received form data")
+    try:
+        data = request.get_json()  # This will parse the incoming JSON
+        username = data.get("username")
+        satellite_name = data.get("satellite_name") #this could easily change to satellite id.
+    except Exception as e:
+        return f"Error parsing JSON: {str(e)}", 400
+
+    print(
+        f"Received data: username={username}, satellite_name={satellite_name}"
+    )  # Debugging line
+
+    if not username or not satellite_name:
+        return "Invalid data", 400
+    try:
+        # Call the function to add the satellite to the user
+        delete_satellite_from_user(username, satellite_name)
+
+        # Get the updated list of satellites for the user
+        updated_satellites = get_user_satellites(username)
+
+        # Return the updated list of satellites as JSON
+        return jsonify(updated_satellites)
+
+    except ValueError as ve:
+        return str(ve), 400
+    except Exception as e:
+        return f"Error: {e}", 500
+
+
+
+
+""" CHATGPT suggestion
+@app.route('/delete_satellite', methods=['POST'])
+def delete_satellite():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    satellite_id = data.get('satellite_id')
+
+    if not user_id or not satellite_id:
+        return jsonify({'error': 'Missing user_id or satellite_id'}), 400
+
+    # Assuming user_satellite_table is already defined in your SQLAlchemy setup
+    delete_stmt = user_satellite_table.delete().where(
+        user_satellite_table.c.user_id == user_id,
+        user_satellite_table.c.satellite_id == satellite_id
+    )
+
+    with engine.connect() as conn:
+        conn.execute(delete_stmt)
+        conn.commit()
+
+    return jsonify({'message': 'Satellite deleted successfully'})
+"""

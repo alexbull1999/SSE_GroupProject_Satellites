@@ -40,7 +40,7 @@ async function searchSatellite() {
 }
 
 
-// Function to add selected satellite to tracking list
+// Function to add selected satellite to tracking list - maybe move this function and the ones below to the account.js
 function addSatelliteToTracking() {
     console.log("adding satellite...")
     const searchBar = document.getElementById("search-bar");
@@ -82,6 +82,39 @@ function addSatelliteToTracking() {
     });
 }
 
+function deleteSatellite(satelliteName) {
+    console.log("Deleting satellite with ID:", satelliteName);
+
+    const username = document.querySelector("input[name='username']").value;
+
+    fetch("/delete_satellite", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            'username': username,
+            'satellite_name': satelliteName
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error("Failed to delete satellite.");
+        }
+    })
+    .then(updatedSatellites => {
+        // Call the function to update the table with the new satellite list
+        updateSatellitesTable(updatedSatellites);
+        console.log("Satellite deleted successfully");
+    })
+    .catch(error => {
+        console.error("Error deleting satellite:", error);
+    });
+}
+
+
 // Function to update the satellite list/table
 function updateSatellitesTable(satellites) {
     const tableBody = document.querySelector("tbody");
@@ -92,6 +125,17 @@ function updateSatellitesTable(satellites) {
                     ${satellite.name}
                 </a>
             </td>
+            <td class="p-3">
+                <button onclick="deleteSatellite('${satellite.name}')">Delete</button>
+            </td>
         </tr>
     `).join("");
+     // Reattach event listeners after the table is updated
+     const deleteButtons = tableBody.querySelectorAll("button");
+     deleteButtons.forEach(button => {
+         button.addEventListener("click", (e) => {
+             const satelliteName = e.target.closest('tr').querySelector('a').textContent;
+             deleteSatellite(satelliteName);
+         });
+     });
 }

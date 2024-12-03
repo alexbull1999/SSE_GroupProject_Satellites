@@ -210,6 +210,8 @@ def add_satellite_to_user(username, satellite_name):
             f"Satellite '{satellite_name}' successfully added to user '{username}'"
         )
 
+
+
     except ValueError as ve:
         print(f"Error: {ve}")
         raise  # Re-raise for higher-level error handling if needed
@@ -217,6 +219,47 @@ def add_satellite_to_user(username, satellite_name):
         session.rollback()
         print(f"Error: {e}")
         raise  # Re-raise for higher-level error handling if needed
+    finally:
+        session.close()
+
+def delete_satellite_from_user(username, satellite_name):
+    session = Session()
+    try:
+        # Find the user by username
+        stmt = select(user_table).filter(user_table.c.user_name == username)
+        user_result = session.execute(stmt).fetchone()
+        if not user_result:
+            raise ValueError(f"User '{username}' not found")
+
+        user_id = user_result.id  # Extract the user_id - maybe not necessary if I can easily get the user_id
+
+        # Find satellite by name
+        satellite_id = get_satellite_id_by_name(satellite_name)
+        if not satellite_id:
+            raise ValueError("Satellite not found")
+
+        # Check if the user is tracking this satellite - surely they already will be if it can be deleted.
+        check_stmt = select(user_satellite_table).where(
+            user_satellite_table.c.user_id == user_id,
+            user_satellite_table.c.satellite_id == satellite_id,
+        )
+        is_tracking = session.execute(check_stmt).fetchone()
+
+        if not is_tracking:
+            raise ValueError("Satellite is not currently tracked by user")
+
+        # Delete the relationship from the user_satellite table
+        delete_stmt = user_satellite_table.delete().where(
+            user_satellite_table.c.user_id == user_id,
+            user_satellite_table.c.satellite_id == satellite_id,
+        )
+        session.execute(delete_stmt)
+        session.commit()
+
+        print(f"Satellite '{satellite_name}' successfully deleted from user '{username}'")
+    except Exception as e:
+        session.rollback()
+        print(f"Error deleting satellite: {e}")
     finally:
         session.close()
 
