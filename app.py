@@ -118,7 +118,7 @@ def satellite():
                 next_pass=next_pass,
             )
         else:
-            return "Satellite not found", 404
+            return "404 Not Found", 404
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
