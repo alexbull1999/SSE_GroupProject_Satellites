@@ -1,135 +1,62 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!-- Satellite Section -->
-<section class="p-6 space-y-10">
-    <h2 class="text-2xl md:text-3xl font-semibold text-center text-gray-300">
+
+<section class="p-6">
+    <!-- Section Title -->
+    <h2 class="text-3xl font-semibold text-center text-gray-800 mb-8">
         Explore Our Satellites
     </h2>
-    <div class="flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-12">
 
-
-        <!-- HST Section -->
+    <!-- Satellite Grid Container -->
+    <div class="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Hubble Space Telescope -->
         <a href="/satellite/20580?image_url=https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg"
-           class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
+           class="bg-white p-4 rounded-lg shadow-lg">
             <img
                 src="https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg"
                 alt="The Hubble Space Telescope"
-                class="rounded-lg w-full h-48 object-cover mb-4"
+                class="rounded-t-lg w-full h-40 object-cover mb-4"
             />
-            <h3 class="text-xl font-medium text-gray-200">The Hubble Space Telescope</h3>
-            <p class="text-gray-400">A long telescope.</p>
+            <h3 class="text-xl font-medium text-gray-800">The Hubble Space Telescope</h3>
+            <p class="text-gray-600">Hubble has peered back into our universe's distant past, to locations more than 13.4 billion light-years from Earth</p>
         </a>
 
-
-        <!-- ISS Section -->
+        <!-- International Space Station -->
         <a href="/satellite/25544?image_url=https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/e7e2/live/bea2c100-3539-11ef-a647-6fc50b20e53e.jpg"
-           class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
+           class="bg-white p-4 rounded-lg shadow-lg">
             <img
                 src="https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/e7e2/live/bea2c100-3539-11ef-a647-6fc50b20e53e.jpg"
                 alt="International Space Station"
-                class="rounded-lg w-full h-48 object-cover mb-4"
+                class="rounded-t-lg w-full h-40 object-cover mb-4"
             />
-            <h3 class="text-xl font-medium text-gray-200">The ISS</h3>
-            <p class="text-gray-400">A beacon of international cooperation orbiting above us.</p>
+            <h3 class="text-xl font-medium text-gray-800">The ISS</h3>
+            <p class="text-gray-600">A beacon of international cooperation orbiting above us.</p>
+        </a>
+
+        <!-- Starlink Satellite -->
+        <a href="/satellite/44714?image_url=https://wmo.int/sites/default/files/2023-03/AdobeStock_580430822.jpeg"
+           class="bg-white p-4 rounded-lg shadow-lg">
+            <img
+                src="https://wmo.int/sites/default/files/2023-03/AdobeStock_580430822.jpeg"
+                alt="Starlink Satellite"
+                class="rounded-t-lg w-full h-40 object-cover mb-4"
+            />
+            <h3 class="text-xl font-medium text-gray-800">Starlink</h3>
+            <p class="text-gray-600">Connecting the globe with satellite internet.</p>
+        </a>
+
+        <!-- Galileo Satellite -->
+        <a href="/satellite/38779?image_url=https://eoportal.org/ftp/satellite-missions/g/GIOVEA_241121/GIOVEA_Auto17.jpeg"
+           class="bg-white p-4 rounded-lg shadow-lg">
+            <img
+                src="https://eoportal.org/ftp/satellite-missions/g/GIOVEA_241121/GIOVEA_Auto17.jpeg"
+                alt="Galileo Satellite"
+                class="rounded-t-lg w-full h-40 object-cover mb-4"
+            />
+            <h3 class="text-xl font-medium text-gray-800">Galileo</h3>
+            <p class="text-gray-600">Europe's GPS alternative for precise navigation.</p>
         </a>
     </div>
-</section>
-
-
-
-<!-- Search Banners -->
-<section class="mt-12 space-y-6 flex flex-col items-center">
-    <!-- Find Satellite Banner -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-md w-4/5 sm:w-2/3 lg:w-1/2 text-center">
-        <h3 class="text-lg md:text-xl font-medium text-gray-200">Find Satellite</h3>
-        <form id="satellite-form" action="/satellite" method="GET" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
-            <div class="relative w-full md:w-auto">
-                <!--search bar -->
-                <input
-                type="text"
-                id = "search-bar"
-                placeholder="Enter satellite name"
-                oninput = "searchSatellite()"
-                name = "name"
-                autocomplete = "off"
-                class="w-full px-3 py-2 rounded text-gray-800"
-                />
-                <div id="dropdown" class="dropdown-menu"></div>
-            </div>
-            <button type="submit"
-                class="w-full md:w-1/3 bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">
-                Search
-            </button>
-        </form>
-    </div>
-
-    <!-- Find Satellite by Country -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-md w-4/5 sm:w-2/3 lg:w-1/2 text-center">
-        <h3 class="text-lg md:text-xl font-medium text-gray-200">Enter a Country</h3>
-        <form id="country-form" action="/country" method="get" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mt-4">
-            <div class="relative w-full md:w_auto">
-                <!--search bar -->
-                <input
-                type="text"
-                id = "country-search-bar"
-                placeholder="Enter country name"
-                oninput = "searchCountry()"
-                name="country"
-                autocomplete = "off"
-                class="w-full px-3 py-2 rounded text-gray-800"
-                />
-                <div id="country-dropdown" class="dropdown-menu"></div>
-            </div>
-            <button type="submit"
-                class="w-full md:w-1/3 bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">
-                Search
-            </button>
-        </form>
-    </div>
-
-
-
-    <!-- Create Account and Login Section (Side by Side) -->
-
-    <div class="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-6 w-full sm:w-3/4 md:w-2/3 lg:w-1/2 mt-6">
-
-    <!-- Create Account Banner -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 text-center">
-        <h3 class="text-lg md:text-xl font-medium text-gray-200">Create Account</h3>
-        <form class="flex flex-col items-center justify-center space-y-4 mt-4">
-            <input
-                type="text"
-                placeholder="Enter username"
-                class="w-full px-3 py-2 rounded text-gray-800"
-                id="create-username"
-            />
-            <button type="submit"
-                class="w-full md:w-1/3 bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded"
-                id="create-account-btn" onclick="createAccount()">
-                Create Account
-            </button>
-        </form>
-    </div>
-
-    <!-- Login Banner -->
-    <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 text-center">
-        <h3 class="text-lg md:text-xl font-medium text-gray-200">Login</h3>
-        <form class="flex flex-col items-center justify-center space-y-4 mt-4">
-            <input
-                type="text"
-                placeholder="Enter your username"
-                class="w-full px-3 py-2 rounded text-gray-800"
-                id="login-username"
-            />
-            <button type="submit"
-                class="w-full md:w-1/3 bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
-                id="login-btn" onclick="login()">
-                Login
-            </button>
-        </form>
-    </div>
-
-    </div> <!-- End of flex container -->
 </section>
 {% endblock %}

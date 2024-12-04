@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- Main Login Section -->
+<div class="w-4/5 sm:w-2/3 lg:w-1/2 mx-auto mt-10">
+    <!-- White background, rounded corners, and shadow -->
+    <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+        <!-- Buttons to toggle between login and create account -->
+        <div class="flex justify-center space-x-4 mb-6">
+            <button
+                id="login-button"
+                class="px-4 py-2 bg-[#DC143C] text-white rounded-lg hover:bg-red-700"
+                onclick="toggleForm('login')">
+                Login
+            </button>
+            <button
+                id="create-button"
+                class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-[#DC143C]"
+                onclick="toggleForm('create')">
+                Create Account
+            </button>
+        </div>
+        <!-- Create Account Form (initially hidden) -->
+        <div id="create-form" class="hidden">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
+                <h3 class="text-lg md:text-xl font-medium text-gray-200">Create Account</h3>
+                <form action="/create_account" method="POST" class="flex flex-col items-center justify-center space-y-4 mt-4">
+                    <input
+                        type="text"
+                        id="create-username"
+                        placeholder="Enter username"
+                        name="username"
+                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300"
+                    />
+                    <button type="submit"
+                            class="w-full md:w-2/3 bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded"
+                            id="create-account-btn" onclick="createAccount()">
+                        Create Account
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Login Form (initially visible) -->
+        <div id="login-form">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
+                <h3 class="text-lg md:text-xl font-medium text-gray-200">Login</h3>
+                <form action="/login" method="POST" class="flex flex-col items-center justify-center space-y-4 mt-4">
+                    <input
+                        type="text"
+                        id="login-username"
+                        placeholder="Enter your username"
+                        name="username"
+                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300"
+                    />
+                    <button type="submit"
+                            class="w-full md:w-2/3 bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
+                            id="login-btn" onclick="login()">
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to toggle between the login and create account forms
+    function toggleForm(formType) {
+        if (formType === 'login') {
+            // Show login form and hide create account form
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('create-form').classList.add('hidden');
+            // Change button colors
+            document.getElementById('login-button').classList.add('bg-[#DC143C]');
+            document.getElementById('login-button').classList.remove('bg-gray-700');
+            document.getElementById('create-button').classList.add('bg-gray-700');
+            document.getElementById('create-button').classList.remove('bg-[#DC143C]');
+        } else if (formType === 'create') {
+            // Show create account form and hide login form
+            document.getElementById('create-form').classList.remove('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+            // Change button colors
+            document.getElementById('create-button').classList.add('bg-[#DC143C]');
+            document.getElementById('create-button').classList.remove('bg-gray-700');
+            document.getElementById('login-button').classList.add('bg-gray-700');
+            document.getElementById('login-button').classList.remove('bg-[#DC143C]');
+        }
+    }
+</script>
+
+{% endblock %}
