@@ -9,9 +9,16 @@
         /* Default black background */
         body {
             background-color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;  /* Make the body take the full height of the screen */
+            margin: 0;
         }
-    </style>
-    <style>
+
+        .content {
+            flex-grow: 1;  /* Make content take the available space */
+        }
+
         .dropdown-menu {
             position: absolute;
             background-color: black;
@@ -30,7 +37,7 @@
             font-size: 14px;
         }
         .dropdown-item:hover {
-            background-colour: #f0f0f0;
+            background-color: #f0f0f0;
         }
 
         /* Ensure the parent container aligns correctly */
@@ -38,13 +45,10 @@
             position: relative;
         }
     </style>
-
 </head>
 <body class="text-white font-sans">
-    <div class="flex">
-        <!-- Main Content -->
-        <div class="flex-1">
-            <!-- Header Section -->
+    <div class="flex-1 content">
+        <!-- Header Section -->
         <header class="bg-white border-b border-gray-200 shadow-sm p-6">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
                 <!-- Website Title -->
@@ -54,37 +58,34 @@
 
                 <!-- Navigation Buttons -->
                 <nav class="flex items-center space-x-6">
-                    <a href="{{ url_for('index') }}" class="text-lg font-medium hover:text-gray-500 transition" style="color: #DC143C;">
-                        Home
-                    </a>
-                    <a href="{{ url_for('login_page') }}" class="text-lg font-medium hover:text-gray-500 transition" style="color: #DC143C;">
+                    <a href="{{ url_for('login_page') }}" class="text-lg font-bold hover:text-gray-500 transition" style="color: #DC143C;">
                         Login
                     </a>
-                    <a href="{{ url_for('lookup') }}" class="text-lg font-medium hover:text-gray-500 transition" style="color: #DC143C;">
+                    <a href="{{ url_for('lookup') }}" class="text-lg font-bold hover:text-gray-500 transition" style="color: #DC143C;">
                         Search
                     </a>
                 </nav>
             </div>
         </header>
 
-            <!-- Main Content Placeholder -->
-            <main>
-                {% block content %}
-                {% endblock %}
-            </main>
-
-        <!-- Footer -->
-        <footer class="bg-gray-100 border-t border-gray-200 p-6 mt-12">
-            <div class="max-w-7xl mx-auto text-center">
-                <p class="text-sm text-gray-500">
-                    Developed by Alex, Rob, Sermila, and Tim © 2024
-                </p>
-            </div>
-        </footer>
-        </div>
+        <!-- Main Content Placeholder -->
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
     </div>
-  <!-- JavaScript inclusion -->
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 border-t border-gray-200 p-6 mt-12">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-sm text-gray-500">
+                Developed by Alex, Rob, Sermila, and Tim © 2024
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript inclusion -->
     <!-- Include external or internal JavaScript file -->
-    <script src="{{ url_for("static", filename="js/account.js") }}"></script>
+    <script src="{{ url_for('static', filename='js/account.js') }}"></script>
 </body>
 </html>
