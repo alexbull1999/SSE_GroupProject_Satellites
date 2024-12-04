@@ -8,13 +8,17 @@ from database import (
     find_satellites_by_name,
     populate_country_table,
     find_country_by_name,
+    add_satellite_to_user,
+    get_user_satellites,
+    check_username_exists,
+    add_user,
+    delete_satellite_from_user,
 )
 import os
 from dotenv import load_dotenv
 import ephem
 import math
 import pycountry
-
 
 load_dotenv()
 app = Flask(__name__)
@@ -76,9 +80,11 @@ def satellite():
             tle_data = tle_response.json()
 
             # Fetch orbit data
-            orbit_url = (f"{NY20_API_BASE}positions/{satellite_id}/"
-                         f"{observer_lat}/{observer_lng}/"
-                         f"{observer_alt}/10&apiKey={API_KEY}")
+            orbit_url = (
+                f"{NY20_API_BASE}positions/{satellite_id}/"
+                f"{observer_lat}/{observer_lng}/"
+                f"{observer_alt}/10&apiKey={API_KEY}"
+            )
             orbit_response = requests.get(orbit_url)
             if orbit_response.status_code != 200:
                 return "Failed to fetch Orbit data", 500
@@ -87,9 +93,11 @@ def satellite():
             # Fetch visible passes
             days = 10  # Max prediction range
             min_visibility = 300  # min visibility in seconds
-            passes_url = (f"{NY20_API_BASE}visualpasses/{satellite_id}/"
-                          f"{observer_lat}/{observer_lng}/{observer_alt}/"
-                          f"{days}/{min_visibility}&apiKey={API_KEY}")
+            passes_url = (
+                f"{NY20_API_BASE}visualpasses/{satellite_id}/"
+                f"{observer_lat}/{observer_lng}/{observer_alt}/"
+                f"{days}/{min_visibility}&apiKey={API_KEY}"
+            )
             passes_response = requests.get(passes_url)
             if passes_response.status_code != 200:
                 return "Failed to fetch visible passes data", 500
@@ -370,30 +378,6 @@ def country_details(country_name):
     return f"Details for country: {country_name} (this is a placeholder) "
 
 
-@app.route("/create_account", methods=["POST"])
-def create_account():
-    data = request.get_json()
-    username = data.get("username")
-    # check if username already exists
-    if username in user_info:
-        return (
-            jsonify({"error": "User already exists"}),
-            400,
-        )  # return in jsonify so java can read it.
-    user_info[username] = {"username": username}
-    return jsonify({"message": "Account created successfully"}), 200
-
-
-@app.route("/login", methods=["POST"])
-def login():
-    data = request.get_json()
-    username = data.get("username")
-    # check if username exists
-    if username not in user_info:
-        return jsonify({"error": "User does not exist"}), 400
-    return jsonify({"message": "Login successful"}), 200
-
-
 # Helper function to get satellite name by id.
 def get_satellite_by_id(satellite_id):
     connection = sqlite3.connect("app_database.db")
@@ -409,33 +393,6 @@ def get_satellite_by_id(satellite_id):
             "name": result[1],  # Assuming the name is in the second column
         }
     return None
-
-
-@app.route("/account/<username>")
-def account(username):
-    if username not in user_info:
-        return redirect(url_for("login"))
-        # redirect to home page if no account found
-
-    # retrive user data
-    user = user_info[username]
-
-    # convert satellites id to satellite name
-    satellites = [
-        get_satellite_by_id(satellite_id)
-        for satellite_id in user.get("satellites", [])
-    ]
-
-    # get country names
-    countries = user.get("countries", [])
-
-    # Return the account page for hte user if the account exists
-    return render_template(
-        "account.html",
-        username=user["username"],
-        satellites=satellites,
-        countries=countries,
-    )
 
 
 def fetch_satellite_image(satellite_name):
@@ -507,3 +464,129 @@ def get_observer_location():
     except Exception as e:
         print(f"Error fetching location: {e}")
         return None
+
+
+@app.route("/create_account", methods=["POST"])
+def create_account():
+    data = request.get_json()
+    username = data.get("username")
+
+    # Check if username is provided
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+
+    # Check if the username already exists in the database
+    if check_username_exists(username):
+        return (
+            jsonify({"error": "User already exists"}),
+            400,
+        )  # Return an error if username exists
+
+    # Add the user to the database
+    try:
+        add_user(username)
+        return jsonify({"message": "Account created successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Error creating account: {str(e)}"}), 500
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data.get("username")
+    # check if username exists
+
+    if not check_username_exists(username):
+        return jsonify({"error": "User does not exist"}), 400
+
+    return jsonify({"message": "Login successful"}), 200
+
+
+@app.route("/account/<username>")
+def account(username):
+    user = check_username_exists(username)
+    if not user:
+        return redirect(
+            url_for("login")
+        )  # redirect to home page if no account found
+
+    username = user["user_name"]
+    # convert satellites id to satellite name
+    satellites = get_user_satellites(username)
+
+    # get country names
+    # countries = get_user_countries(username)
+
+    # Return the account page for hte user if the account exists
+    return render_template(
+        "account.html",
+        username=user["user_name"],
+        satellites=satellites,
+        # countries=countries,
+    )
+
+
+@app.route("/add_satellite", methods=["POST"])
+def add_satellite():
+    print(f"Received form data")
+    try:
+        data = request.get_json()  # This will parse the incoming JSON
+        username = data.get("username")
+        satellite_name = data.get("satellite_name")
+    except Exception as e:
+        return f"Error parsing JSON: {str(e)}", 400
+
+    print(
+        f"Received data: username={username}, satellite_name={satellite_name}"
+    )  # Debugging line
+
+    if not username or not satellite_name:
+        return "Invalid data", 400
+    try:
+        # Call the function to add the satellite to the user
+        add_satellite_to_user(username, satellite_name)
+
+        # Get the updated list of satellites for the user
+        updated_satellites = get_user_satellites(username)
+
+        # Return the updated list of satellites as JSON
+        return jsonify(updated_satellites)
+
+    except ValueError as ve:
+        return str(ve), 400
+    except Exception as e:
+        return f"Error: {e}", 500
+
+
+@app.route("/delete_satellite", methods=["POST"])
+def delete_satellite():
+    print(f"Received form data")
+    try:
+        data = request.get_json()  # This will parse the incoming JSON
+        username = data.get("username")
+        satellite_name = data.get(
+            "satellite_name"
+        )  # this could easily change to satellite id.
+    except Exception as e:
+        return f"Error parsing JSON: {str(e)}", 400
+
+    print(
+        f"Received data: username={username}, satellite_name={satellite_name}"
+    )  # Debugging line
+
+    if not username or not satellite_name:
+        return "Invalid data", 400
+    try:
+        # Call the function to add the satellite to the user
+        delete_satellite_from_user(username, satellite_name)
+
+        # Get the updated list of satellites for the user
+        updated_satellites = get_user_satellites(username)
+
+        # Return the updated list of satellites as JSON
+        return jsonify(updated_satellites)
+
+    except ValueError as ve:
+        return str(ve), 400
+    except Exception as e:
+        return f"Error: {e}", 500

@@ -4,6 +4,38 @@
     <!-- Welcome message and user details -->
     <div class="container mx-auto p-6">
         <h2 class="text-3xl font-semibold text-indigo-400 mb-6">Welcome, {{ username }}!</h2>
+        <!-- Search and Add Satellite Section -->
+        <section class="mt-6">
+            <h3 class="text-2xl font-semibold text-indigo-400 mb-4">Add Satellites to Track</h3>
+            <div class="flex gap-4">
+                <!-- Hidden field for username Keep this rob!! -->
+                <input type="hidden" name="username" value="{{ username }}">
+
+                <!-- Search Bar -->
+                <input
+                    type="text"
+                    id="search-bar"
+                    placeholder="Enter satellite name"
+                    oninput="searchSatellite()"
+                    name="name"
+                    autocomplete="off"
+                    class="flex-1 px-3 py-2 rounded text-gray-800"
+                />
+                <button
+                    onclick="addSatelliteToTracking()"
+                    class="bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">
+                    Add Satellite
+                </button>
+            </div>
+            <div id="dropdown" class="dropdown-menu bg-gray-800 text-gray-300 rounded shadow-md mt-2"></div>
+        </section>
+
+      <!-- Form to Submit Satellite to User -->
+        <form id="addSatelliteForm" method="POST" action="/add_satellite">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" id="satellite-id" name="satellite_id" value="">
+        </form>
+    </div>
 
         <!-- Satellites Table -->
         <section class="mt-6">
@@ -12,6 +44,7 @@
                 <thead>
                     <tr>
                         <th class="p-3 text-left text-gray-300">Satellite Name</th>
+                        <th class="p-3 text-left text-gray-300">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -22,6 +55,14 @@
                                 <a href="{{ url_for('satellite_by_id', satellite_id=satellite.id) }}" class="text-indigo-500 hover:text-indigo-700">
                                     {{ satellite.name }}
                                 </a>
+                            </td>
+                            <td class="p-3">
+                                <button
+                                    onclick="deleteSatellite('{{ satellite.name }}')"
+                                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                                >
+                                    Delete
+                                </button>
                             </td>
                         </tr>
                     {% else %}
