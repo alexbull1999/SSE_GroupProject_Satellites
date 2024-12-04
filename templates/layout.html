@@ -8,10 +8,17 @@
     <style>
         /* Default black background */
         body {
-            background-color: black;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;  /* Make the body take the full height of the screen */
+            margin: 0;
         }
-    </style>
-    <style>
+
+        .content {
+            flex-grow: 1;  /* Make content take the available space */
+        }
+
         .dropdown-menu {
             position: absolute;
             background-color: black;
@@ -30,7 +37,7 @@
             font-size: 14px;
         }
         .dropdown-item:hover {
-            background-colour: #f0f0f0;
+            background-color: #f0f0f0;
         }
 
         /* Ensure the parent container aligns correctly */
@@ -124,50 +131,46 @@
     </script>
 </head>
 <body class="text-white font-sans">
-    <div class="flex">
-        <!-- Sidebar -->
-        <aside class="w-64 bg-gray-900 min-h-screen p-4">
-            <h2 class="text-xl font-semibold text-indigo-400 mb-4">Current Projects</h2>
-            <details class="bg-gray-800 rounded-lg p-3">
-                <summary class="cursor-pointer text-gray-300 font-medium">
-                    Projects
-                </summary>
-                <ul class="mt-2 space-y-2">
-                    <!-- Empty for now -->
-                    <li class="text-gray-400 italic">No projects yet.</li>
-                </ul>
-            </details>
-        </aside>
-
-        <!-- Main Content -->
-        <div class="flex-1">
-            <!-- Header Section -->
-            <header class="text-center p-6">
-                <a href="{{ url_for('index') }}" class="text-4xl md:text-6xl font-bold text-indigo-500">
+    <div class="flex-1 content">
+        <!-- Header Section -->
+        <header class="bg-white border-b border-gray-200 shadow-sm p-6">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <!-- Website Title -->
+                <a href="{{ url_for('index') }}" class="text-4xl md:text-5xl font-extrabold text-gray-800">
                     Track To The Future
                 </a>
-                <p class="mt-4 text-lg md:text-xl">
-                    Explore the cosmos with us!
-                </p>
-            </header>
 
-            <!-- Main Content Placeholder -->
-            <main>
-                {% block content %}
-                {% endblock %}
-            </main>
+                <!-- Navigation Buttons -->
+                <nav class="flex items-center space-x-6">
+                    <a href="{{ url_for('login_page') }}" class="text-lg font-bold hover:text-gray-500 transition" style="color: #DC143C;">
+                        Login
+                    </a>
+                    <a href="{{ url_for('lookup') }}" class="text-lg font-bold hover:text-gray-500 transition" style="color: #DC143C;">
+                        Search
+                    </a>
+                </nav>
+            </div>
+        </header>
 
-            <!-- Footer Section -->
-            <footer class="mt-12 p-4 bg-gray-900 text-center">
-                <p class="text-sm text-gray-400">
-                    Developed by Alex, Rob, Sermila and Tim © 2024
-                </p>
-            </footer>
-        </div>
+        <!-- Main Content Placeholder -->
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
     </div>
-  <!-- JavaScript inclusion -->
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 border-t border-gray-200 p-6 mt-12">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-sm text-gray-500">
+                Developed by Alex, Rob, Sermila, and Tim © 2024
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript inclusion -->
     <!-- Include external or internal JavaScript file -->
-    <script src="{{ url_for("static", filename="js/account.js") }}"></script>
-    <script src="{{ url_for('static', filename='js/searchBar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/account.js') }}"></script>
+ <script src="{{ url_for('static', filename='js/searchBar.js') }}"></script>
 </body>
 </html>

@@ -253,9 +253,7 @@ def test_country_table_population(tmp_path, engine):
     # Verify that at least some countries were populates
     assert len(rows) > 0, "Country table is empty"
     assert rows[0]["name"] is not None, "Expected country name to be populated"
-    assert (
-        rows[0]["latitude"] is not None
-    ), "Expected country latitude to be populated"
+    assert rows[0]["latitude"] is not None, "Expected latitude to be populated"
     assert (
         rows[0]["longitude"] is not None
     ), "Expected country longitude to be populated"

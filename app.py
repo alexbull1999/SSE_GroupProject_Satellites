@@ -38,6 +38,16 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/lookup")
+def lookup():
+    return render_template("search.html")
+
+
+@app.route("/login_page")
+def login_page():
+    return render_template("login.html")
+
+
 @app.route("/satellite", methods=["GET"])
 def satellite():
     input_satellite = request.args.get("name")
@@ -204,9 +214,8 @@ def get_satellites_over_country():
             satellites = []
 
             # Process the API response
-            if (
-                response.status_code == 200
-            ):  # Check if the request was successful
+            if response.status_code == 200:
+                # Check if the request was successful
                 # Parse the response JSON to extract satellite data
                 data = response.json()
                 for sat in data.get(
