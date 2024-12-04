@@ -52,7 +52,7 @@
                          <tr>
                             <!-- Make the satellite name clickable -->
                             <td class="p-3 text-gray-400">
-                                <a href="{{ url_for('satellite_by_id', satellite_id=satellite.id) }}" class="text-indigo-500 hover:text-indigo-700">
+                                <a href="{{ url_for('satellite', name=satellite.name) }}" class="text-indigo-500 hover:text-indigo-700">
                                     {{ satellite.name }}
                                 </a>
                             </td>
