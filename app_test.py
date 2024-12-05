@@ -78,7 +78,7 @@ def test_create_new_user(client):
     assert response.status_code == 200
     assert b'{"message":"Account created successfully"}\n' in response.data
     # check the user is in the user_info database
-    #assert "new_user" in user_info
+    # assert "new_user" in user_info
 
 
 @pytest.mark.skip
