@@ -4,7 +4,7 @@ from database import (
     add_user,
 )
 
-login_bp = Blueprint("login", __name__)
+login_bp = Blueprint("login", __name__, url_prefix="/login")
 
 @login_bp.route("/create_account", methods=["POST"])
 def create_account():
@@ -30,7 +30,7 @@ def create_account():
         return jsonify({"error": f"Error creating account: {str(e)}"}), 500
 
 
-@login_bp.route("/login", methods=["POST"])
+@login_bp.route("/", methods=["POST"])
 def login():
     data = request.get_json()
     username = data.get("username")

@@ -5,7 +5,7 @@ function createAccount() {
     const username = document.getElementById('create-username').value;
 
     // Make a POST request to create the account
-    fetch('/create_account', {
+    fetch('/login/create_account', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ function login() {
     const username = document.getElementById('login-username').value;
 
     // Make a POST request to log the user in
-    fetch('/login', {
+    fetch('/login/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

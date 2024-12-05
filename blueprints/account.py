@@ -16,7 +16,7 @@ def account(username):
     user = check_username_exists(username)
     if not user:
         return redirect(
-            url_for("login")
+            url_for("login.login")
         )  # redirect to home page if no account found
 
     username = user["user_name"]
