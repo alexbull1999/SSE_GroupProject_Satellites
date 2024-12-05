@@ -31,7 +31,7 @@
         </section>
 
       <!-- Form to Submit Satellite to User -->
-        <form id="addSatelliteForm" method="POST" action="/add_satellite">
+        <form id="addSatelliteForm" method="POST" action="{{ url_for('login.add_satellite') }}">
             <input type="hidden" name="username" value="{{ username }}">
             <input type="hidden" id="satellite-id" name="satellite_id" value="">
         </form>
@@ -101,7 +101,7 @@
         </section>
 
       <!-- Form to Submit Country to User -->
-        <form id="addCountryForm" method="POST" action="/add_country">
+        <form id="addCountryForm" method="POST" action="{{ url_for('login.add_country') }}">
             <input type="hidden" name="username" value="{{ username }}">
             <input type="hidden" id="country-name" name="country_name" value="">
         </form>

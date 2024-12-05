@@ -11,7 +11,7 @@
     <!-- Satellite Grid Container -->
     <div class="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Hubble Space Telescope -->
-        <a href="/satellite?name=HST"
+        <a href="{{ url_for('satellites.satellite', name='HST') }}"
            class="bg-white p-4 rounded-lg shadow-lg">
             <img
                 src="https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg"
@@ -23,7 +23,7 @@
         </a>
 
         <!-- International Space Station -->
-        <a href="/satellite?name=ISS (ZARYA)"
+        <a href="{{ url_for('satellites.satellite', name='ISS (ZARYA') }}"
            class="bg-white p-4 rounded-lg shadow-lg">
             <img
                 src="https://ichef.bbci.co.uk/ace/standard/3840/cpsprodpb/e7e2/live/bea2c100-3539-11ef-a647-6fc50b20e53e.jpg"
@@ -35,7 +35,7 @@
         </a>
 
         <!-- Starlink Satellite -->
-        <a href="/satellite?name=STARLINK-1008"
+        <a href="{{ url_for('satellites.satellite', name='STARLINK-1008') }}"
            class="bg-white p-4 rounded-lg shadow-lg">
             <img
                 src="https://wmo.int/sites/default/files/2023-03/AdobeStock_580430822.jpeg"
@@ -47,7 +47,7 @@
         </a>
 
         <!-- Galileo Satellite -->
-        <a href="/satellite?name=GSAT-10"
+        <a href="{{ url_for('satellites.satellite', name='GSAT-10') }}"
            class="bg-white p-4 rounded-lg shadow-lg">
             <img
                 src="https://eoportal.org/ftp/satellite-missions/g/GIOVEA_241121/GIOVEA_Auto17.jpeg"
