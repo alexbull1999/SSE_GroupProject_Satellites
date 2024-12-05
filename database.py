@@ -5,7 +5,7 @@ from models import (
     country_table,
     user_table,
     user_satellite_table,
-    user_country_table
+    user_country_table,
 )
 from sqlalchemy.orm import sessionmaker
 import polars as pl
@@ -321,6 +321,7 @@ def add_satellite_to_user(username, satellite_name):
     finally:
         session.close()
 
+
 def add_country_to_user(username, country_name):
     session = Session()
     try:
@@ -410,6 +411,8 @@ def delete_satellite_from_user(username, satellite_name):
 
 
 def delete_country_from_user(username, country_name):
+    session = Session()
+    try:
         # Find the user by username
         stmt = select(user_table).filter(user_table.c.user_name == username)
         user_result = session.execute(stmt).fetchone()
@@ -419,7 +422,9 @@ def delete_country_from_user(username, country_name):
         user_id = user_result.id  # Extract user_id
 
         # Find country by name directly (no need for country_id)
-        country_stmt = select(country_table).filter(country_table.c.name == country_name)
+        country_stmt = select(country_table).filter(
+            country_table.c.name == country_name
+        )
         country_result = session.execute(country_stmt).fetchone()
 
         if not country_result:
@@ -429,7 +434,8 @@ def delete_country_from_user(username, country_name):
         # Check if the user is tracking this country
         check_stmt = select(user_country_table).where(
             user_country_table.c.user_id == user_id,
-            user_country_table.c.country_name == country_name,  # Use country_name directly
+            user_country_table.c.country_name
+            == country_name,  # Use country_name directly
         )
         is_tracking = session.execute(check_stmt).fetchone()
 
@@ -439,17 +445,22 @@ def delete_country_from_user(username, country_name):
         # Delete the relationship from the user_country table
         delete_stmt = user_country_table.delete().where(
             user_country_table.c.user_id == user_id,
-            user_country_table.c.country_name == country_name,  # Use country_name directly
+            user_country_table.c.country_name
+            == country_name,  # Use country_name directly
         )
         session.execute(delete_stmt)
         session.commit()
 
-        print(f"Country '{country_name}' successfully deleted from user '{username}'")
+        print(
+            f"Country '{country_name}' successfully deleted from user "
+            f"'{username}'"
+        )
     except Exception as e:
         session.rollback()
         print(f"Error deleting country: {e}")
     finally:
         session.close()
+
 
 def get_user_satellites(username):
     session = Session()
@@ -504,9 +515,16 @@ def get_user_countries(username):
 
         # Query to get all countries for the user
         countries_stmt = (
-            select(country_table.c.name)  # We want the 'name' column from country_table
-            .join(user_country_table, user_country_table.c.country_name == country_table.c.name)  # Join on the country_name and name
-            .filter(user_country_table.c.user_id == user_id)  # Filter by the user_id
+            select(
+                country_table.c.name
+            )  # We want the 'name' column from country_table
+            .join(
+                user_country_table,
+                user_country_table.c.country_name == country_table.c.name,
+            )  # Join on the country_name and name
+            .filter(
+                user_country_table.c.user_id == user_id
+            )  # Filter by the user_id
         )
         countries = session.execute(countries_stmt).all()
 

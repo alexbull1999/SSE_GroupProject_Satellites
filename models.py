@@ -55,5 +55,7 @@ user_country_table = Table(
     "user_country",
     Base.metadata,
     Column("user_id", Integer, ForeignKey("user.id"), primary_key=True),
-    Column("country_name", String, ForeignKey("country.name"), primary_key=True),
+    Column(
+        "country_name", String, ForeignKey("country.name"), primary_key=True
+    ),
 )

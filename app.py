@@ -15,7 +15,7 @@ from database import (
     check_username_exists,
     add_user,
     delete_satellite_from_user,
-    delete_country_from_user
+    delete_country_from_user,
 )
 import os
 from dotenv import load_dotenv
@@ -367,7 +367,6 @@ def country_search():
     return jsonify([])  # return empty list if no query
 
 
-
 @app.route("/country/<country_name>", methods=["GET"])
 def country_details(country_name):
     # for now placeholder. update with sermilla code
@@ -556,7 +555,6 @@ def add_satellite():
 
 @app.route("/add_country", methods=["POST"])
 def add_country():
-    print(f"Received form data")
     try:
         data = request.get_json()  # This will parse the incoming JSON
         username = data.get("username")
@@ -584,7 +582,6 @@ def add_country():
         return str(ve), 400
     except Exception as e:
         return f"Error: {e}", 500
-
 
 
 @app.route("/delete_satellite", methods=["POST"])
@@ -620,9 +617,9 @@ def delete_satellite():
     except Exception as e:
         return f"Error: {e}", 500
 
+
 @app.route("/delete_country", methods=["POST"])
 def delete_country():
-    print(f"Received form data")
     try:
         data = request.get_json()  # This will parse the incoming JSON
         username = data.get("username")
@@ -639,7 +636,7 @@ def delete_country():
         # Call the function to delete the country from the user's tracking list
         delete_country_from_user(username, country_name)
 
-        # Get the updated list of countries for the user (you can write this function)
+        # Get the updated list of countries for the user
         updated_countries = get_user_countries(username)
 
         # Return the updated list of countries as JSON
