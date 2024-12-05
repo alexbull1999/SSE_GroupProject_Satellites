@@ -537,7 +537,7 @@ def account(username):
 
 @app.route("/add_satellite", methods=["POST"])
 def add_satellite():
-    print(f"Received form data")
+    print("Received form data")
     try:
         data = request.get_json()  # This will parse the incoming JSON
         username = data.get("username")
@@ -569,7 +569,7 @@ def add_satellite():
 
 @app.route("/delete_satellite", methods=["POST"])
 def delete_satellite():
-    print(f"Received form data")
+    print("Received form data")
     try:
         data = request.get_json()  # This will parse the incoming JSON
         username = data.get("username")

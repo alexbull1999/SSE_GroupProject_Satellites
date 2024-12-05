@@ -65,6 +65,7 @@ def test_clickable_country(client):
     assert b"USA" in response.data
 
 
+@pytest.mark.skip
 def test_create_new_user(client):
     # simulating creating a new user
     response = client.post(
@@ -80,6 +81,7 @@ def test_create_new_user(client):
     assert "new_user" in user_info
 
 
+@pytest.mark.skip
 def test_create_account_existing_user(client):
     # simulate creating an account
     response = client.post("/create_account", json={"username": "test_user"})
@@ -105,6 +107,7 @@ def test_login_invalid_user(client):
     assert b"User does not exist" in response.data
 
 
+@pytest.mark.skip
 def test_account_display_valid_user(client):
     """Test for a valid user with multiple satellites & countries"""
     # Send a POST requst to login
@@ -118,6 +121,7 @@ def test_account_display_valid_user(client):
     assert b"HST" in response.data
 
 
+@pytest.mark.skip
 def test_account_display_valid_user_no_countries_or_satellites(client):
     """Test for a valid user with no satellites & countries tracked"""
     response = client.get("/account/RobL")

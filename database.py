@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, insert
+from sqlalchemy import create_engine, insert, func, select
 from models import (
     satellite_table,
     Base,
@@ -7,7 +7,6 @@ from models import (
     user_satellite_table,
 )
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import func, select, insert
 import polars as pl
 import sqlite3
 from math import acos, pi, degrees
@@ -196,7 +195,7 @@ def get_satellite_by_id(satellite_id):
     try:
         # Query the satellite by name (case-insensitive search)
         stmt = select(satellite_table).where(
-            func.lower(satellite_table.c.name) == satellite_name.lower()
+            func.lower(satellite_table.c.id) == satellite_id.lower()
         )
         result = session.execute(stmt).fetchone()
         if result:
@@ -307,7 +306,8 @@ def add_satellite_to_user(username, satellite_name):
         session.commit()
 
         print(
-            f"Satellite '{satellite_name}' successfully added to user '{username}'"
+            f"Satellite '{satellite_name}' successfully "
+            f"added to user '{username}'"
         )
 
     except ValueError as ve:
@@ -330,16 +330,14 @@ def delete_satellite_from_user(username, satellite_name):
         if not user_result:
             raise ValueError(f"User '{username}' not found")
 
-        user_id = (
-            user_result.id
-        )  # Extract the user_id - maybe not necessary if I can easily get the user_id
+        user_id = user_result.id  # Extract the user_id
 
         # Find satellite by name
         satellite_id = get_satellite_id_by_name(satellite_name)
         if not satellite_id:
             raise ValueError("Satellite not found")
 
-        # Check if the user is tracking this satellite - surely they already will be if it can be deleted.
+        # Check if the user is tracking this satellite
         check_stmt = select(user_satellite_table).where(
             user_satellite_table.c.user_id == user_id,
             user_satellite_table.c.satellite_id == satellite_id,
@@ -358,7 +356,8 @@ def delete_satellite_from_user(username, satellite_name):
         session.commit()
 
         print(
-            f"Satellite '{satellite_name}' successfully deleted from user '{username}'"
+            f"Satellite '{satellite_name}' successfully "
+            f"deleted from user '{username}'"
         )
     except Exception as e:
         session.rollback()
@@ -421,14 +420,16 @@ def get_user_satellites(username):
 def get_user_countries(username):
     session = Session()
     try:
-        user = session.query(user_table).filter(user_table.c.user_name == username).first()
+        user = session.query(user_table).
+        filter(user_table.c.user_name == username).first()
         if not user:
             raise ValueError("User not found")
 
         user_id = user.id  # Extract the user_id
 
-        # Query to get all countries for the user (assuming you have a user_country_table)
-        countries = session.query(country_table).join(user_country_table).filter(
+        # Query to get all countries for the user
+        countries = session.query(country_table).
+        join(user_country_table).filter(
             user_country_table.c.user_id == user_id
         ).all()
 
