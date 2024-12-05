@@ -247,7 +247,6 @@ def check_username_exists(username):
     session = Session()  # Create a session instance
     try:
         # Query the database to check if the username exists
-
         user_result = session.execute(
             user_table.select().where(
                 func.lower(user_table.c.user_name) == username.lower()

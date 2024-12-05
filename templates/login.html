@@ -24,7 +24,7 @@
         <div id="create-form" class="hidden">
             <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
                 <h3 class="text-lg md:text-xl font-medium text-gray-200">Create Account</h3>
-                <form id="createAccountForm" onsubmit="createAccount(event)" class="flex flex-col items-center justify-center space-y-4 mt-4">
+
                     <input
                         type="text"
                         id="create-username"
@@ -37,7 +37,7 @@
                             id="create-account-btn" onclick="createAccount()">
                         Create Account
                     </button>
-                </form>
+
             </div>
         </div>
 
@@ -45,7 +45,6 @@
         <div id="login-form">
             <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
                 <h3 class="text-lg md:text-xl font-medium text-gray-200">Login</h3>
-                <form id="loginForm" onsubmit="login(event)" class="flex flex-col items-center justify-center space-y-4 mt-4">
                     <input
                         type="text"
                         id="login-username"
@@ -58,7 +57,6 @@
                             id="login-btn" onclick="login()">
                         Login
                     </button>
-                </form>
             </div>
         </div>
     </div>
@@ -86,47 +84,6 @@
             document.getElementById('login-button').classList.add('bg-gray-700');
             document.getElementById('login-button').classList.remove('bg-[#DC143C]');
         }
-    }
-
-     function createAccount(event) {
-        event.preventDefault(); // Prevent form from submitting traditionally
-        const username = document.getElementById('create-username').value;
-
-        fetch('/create_account', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: username }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (response.ok) {
-                window.location.href = `/account/${username}`;
-            } else {
-                alert(data.error || "Error creating account");
-            }
-        })
-        .catch(error => console.error("Error:", error));
-    }
-
-    // Function to log in
-    function login(event) {
-        event.preventDefault(); // Prevent form from submitting traditionally
-        const username = document.getElementById('login-username').value;
-
-        fetch('/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: username }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (response.ok) {
-                window.location.href = `/account/${username}`;
-            } else {
-                alert(data.error || "Invalid username");
-            }
-        })
-        .catch(error => console.error("Error:", error));
     }
 
 </script>
