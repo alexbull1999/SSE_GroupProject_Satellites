@@ -50,3 +50,10 @@ user_satellite_table = Table(
     # UniqueConstraint('user_id', 'satellite_id', name='unique_user_satellite')
     # UniqueConstraint means a user can only have on of each satellite. need to add extra stuff ot make work
 )
+
+user_country_table = Table(
+    "user_country",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("user.id"), primary_key=True),
+    Column("country_name", String, ForeignKey("country.name"), primary_key=True),
+)

@@ -8,11 +8,14 @@ from database import (
     find_satellites_by_name,
     populate_country_table,
     find_country_by_name,
+    add_country_to_user,
     add_satellite_to_user,
     get_user_satellites,
+    get_user_countries,
     check_username_exists,
     add_user,
     delete_satellite_from_user,
+    delete_country_from_user
 )
 import os
 from dotenv import load_dotenv
@@ -364,22 +367,6 @@ def country_search():
     return jsonify([])  # return empty list if no query
 
 
-# dummy data for user accounts
-user_info = {
-    "AlexB": {
-        "username": "AlexB",
-        "countries": ["USA", "India"],
-        "satellites": ["20580", "25544"],
-    },
-    "RobL": {"username": "RobL"},
-    "SermilaI": {"username": "SermilaI"},
-    "TimJ": {
-        "username": "TimJ",
-        "countries": [],
-        "satellites": ["25544"],
-    },
-}
-
 
 @app.route("/country/<country_name>", methods=["GET"])
 def country_details(country_name):
@@ -524,14 +511,14 @@ def account(username):
     satellites = get_user_satellites(username)
 
     # get country names
-    # countries = get_user_countries(username)
+    countries = get_user_countries(username)
 
     # Return the account page for hte user if the account exists
     return render_template(
         "account.html",
         username=user["user_name"],
         satellites=satellites,
-        # countries=countries,
+        countries=countries,
     )
 
 
@@ -567,6 +554,39 @@ def add_satellite():
         return f"Error: {e}", 500
 
 
+@app.route("/add_country", methods=["POST"])
+def add_country():
+    print(f"Received form data")
+    try:
+        data = request.get_json()  # This will parse the incoming JSON
+        username = data.get("username")
+        country_name = data.get("country_name")
+    except Exception as e:
+        return f"Error parsing JSON: {str(e)}", 400
+
+    print(
+        f"Received data: username={username}, country_name={country_name}"
+    )  # Debugging line
+
+    if not username or not country_name:
+        return "Invalid data", 400
+    try:
+        # Call the function to add the satellite to the user
+        add_country_to_user(username, country_name)
+
+        # Get the updated list of satellites for the user
+        updated_countries = get_user_countries(username)
+
+        # Return the updated list of satellites as JSON
+        return jsonify(updated_countries)
+
+    except ValueError as ve:
+        return str(ve), 400
+    except Exception as e:
+        return f"Error: {e}", 500
+
+
+
 @app.route("/delete_satellite", methods=["POST"])
 def delete_satellite():
     print(f"Received form data")
@@ -594,6 +614,36 @@ def delete_satellite():
 
         # Return the updated list of satellites as JSON
         return jsonify(updated_satellites)
+
+    except ValueError as ve:
+        return str(ve), 400
+    except Exception as e:
+        return f"Error: {e}", 500
+
+@app.route("/delete_country", methods=["POST"])
+def delete_country():
+    print(f"Received form data")
+    try:
+        data = request.get_json()  # This will parse the incoming JSON
+        username = data.get("username")
+        country_name = data.get("country_name")
+    except Exception as e:
+        return f"Error parsing JSON: {str(e)}", 400
+
+    print(f"Received data: username={username}, country_name={country_name}")
+
+    if not username or not country_name:
+        return "Invalid data", 400
+
+    try:
+        # Call the function to delete the country from the user's tracking list
+        delete_country_from_user(username, country_name)
+
+        # Get the updated list of countries for the user (you can write this function)
+        updated_countries = get_user_countries(username)
+
+        # Return the updated list of countries as JSON
+        return jsonify(updated_countries)
 
     except ValueError as ve:
         return str(ve), 400

@@ -5,6 +5,7 @@ from models import (
     country_table,
     user_table,
     user_satellite_table,
+    user_country_table
 )
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func, select, insert
@@ -320,6 +321,48 @@ def add_satellite_to_user(username, satellite_name):
     finally:
         session.close()
 
+def add_country_to_user(username, country_name):
+    session = Session()
+    try:
+        # Find the user by username using raw user_table
+        stmt = select(user_table).filter(user_table.c.user_name == username)
+        user_result = session.execute(stmt).fetchone()
+        if not user_result:
+            raise ValueError(f"User '{username}' not found")
+
+        user_id = user_result.id  # Extract the user_id
+
+        # Check if the user is already tracking this country
+        check_stmt = select(user_country_table).where(
+            user_country_table.c.user_id == user_id,
+            user_country_table.c.country_name == country_name,
+        )
+        is_tracking = session.execute(check_stmt).fetchone()
+
+        if is_tracking:
+            raise ValueError("Country already tracked by user")
+
+        # Insert the relationship into the user_country table
+        insert_stmt = insert(user_country_table).values(
+            user_id=user_id, country_name=country_name
+        )
+        session.execute(insert_stmt)
+        session.commit()
+
+        print(
+            f"Country '{country_name}' successfully added to user '{username}'"
+        )
+
+    except ValueError as ve:
+        print(f"Error: {ve}")
+        raise  # Re-raise for higher-level error handling if needed
+    except Exception as e:
+        session.rollback()
+        print(f"Error: {e}")
+        raise  # Re-raise for higher-level error handling if needed
+    finally:
+        session.close()
+
 
 def delete_satellite_from_user(username, satellite_name):
     session = Session()
@@ -366,22 +409,50 @@ def delete_satellite_from_user(username, satellite_name):
     finally:
         session.close()
 
-
-"""
-# Function to add a country to a user (similar approach)
-def add_country_to_user(user_id, country_id):
+def delete_country_from_user(username, country_name):
     session = Session()
     try:
-        # Link the user with the country
-        new_entry = {"user_id": user_id, "country_id": country_id}
-        session.execute(user_country_table.insert().values(new_entry))
+        # Find the user by username
+        stmt = select(user_table).filter(user_table.c.user_name == username)
+        user_result = session.execute(stmt).fetchone()
+        if not user_result:
+            raise ValueError(f"User '{username}' not found")
+
+        user_id = user_result.id  # Extract user_id
+
+        # Find country by name directly (no need for country_id)
+        country_stmt = select(country_table).filter(country_table.c.name == country_name)
+        country_result = session.execute(country_stmt).fetchone()
+
+        if not country_result:
+            raise ValueError("Country not found")
+
+        # Assuming the country name is unique, we don't need the country_id.
+        # Check if the user is tracking this country
+        check_stmt = select(user_country_table).where(
+            user_country_table.c.user_id == user_id,
+            user_country_table.c.country_name == country_name,  # Use country_name directly
+        )
+        is_tracking = session.execute(check_stmt).fetchone()
+
+        if not is_tracking:
+            raise ValueError("Country is not currently tracked by user")
+
+        # Delete the relationship from the user_country table
+        delete_stmt = user_country_table.delete().where(
+            user_country_table.c.user_id == user_id,
+            user_country_table.c.country_name == country_name,  # Use country_name directly
+        )
+        session.execute(delete_stmt)
         session.commit()
+
+        print(f"Country '{country_name}' successfully deleted from user '{username}'")
     except Exception as e:
         session.rollback()
-        print(f"Error: {e}")
+        print(f"Error deleting country: {e}")
     finally:
         session.close()
-"""
+
 
 
 def get_user_satellites(username):
@@ -417,22 +488,37 @@ def get_user_satellites(username):
         session.close()
 
 
-"""
 def get_user_countries(username):
     session = Session()
     try:
-        user = session.query(user_table).filter(user_table.c.user_name == username).first()
-        if not user:
+        # Find the user by username
+        stmt = select(user_table).filter(user_table.c.user_name == username)
+        result = session.execute(stmt).fetchone()
+
+        # Debugging output
+        print(f"User query result: {result}")  # Check if the user exists
+
+        if not result:
             raise ValueError("User not found")
 
-        user_id = user.id  # Extract the user_id
+        user_id = result.id  # Extract the user_id
 
-        # Query to get all countries for the user (assuming you have a user_country_table)
-        countries = session.query(country_table).join(user_country_table).filter(
-            user_country_table.c.user_id == user_id
-        ).all()
+        # Debugging output
+        print(f"User ID: {user_id}")  # Check the extracted user_id
 
-        return [country.name for country in countries]
+        # Query to get all countries for the user
+        countries_stmt = (
+            select(country_table.c.name)  # We want the 'name' column from country_table
+            .join(user_country_table, user_country_table.c.country_name == country_table.c.name)  # Join on the country_name and name
+            .filter(user_country_table.c.user_id == user_id)  # Filter by the user_id
+        )
+        countries = session.execute(countries_stmt).all()
+
+        # Debugging output
+        print(f"Countries found: {countries}")  # Check the countries retrieved
+
+        # Return the countries as a list of dicts
+        return [{"name": country[0]} for country in countries]
 
     except Exception as e:
         print(f"Error: {e}")
@@ -440,4 +526,3 @@ def get_user_countries(username):
     finally:
         session.close()
 
-"""

@@ -27,7 +27,7 @@
                     Add Satellite
                 </button>
             </div>
-            <div id="dropdown" class="dropdown-menu bg-gray-800 text-gray-300 rounded shadow-md mt-2"></div>
+            <div id="dropdown" class="dropdown-menu absolute left-0 w-full mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
         </section>
 
       <!-- Form to Submit Satellite to User -->
@@ -74,23 +74,79 @@
             </table>
         </section>
 
+    <!-- Search and Add Country Section -->
+        <section class="mt-6">
+            <h3 class="text-2xl font-semibold text-indigo-400 mb-4">Add Countries to Track</h3>
+            <div class="flex gap-4">
+                <!-- Hidden field for username Keep this rob!! -->
+                <input type="hidden" name="username" value="{{ username }}">
+
+                <!-- Search Bar -->
+                <input
+                    type="text"
+                    id="country-search-bar"
+                    placeholder="Enter country name"
+                    oninput="searchCountry()"
+                    name="name"
+                    autocomplete="off"
+                    class="flex-1 px-3 py-2 rounded text-gray-800"
+                />
+                <button
+                    onclick="addCountryToTracking()"
+                    class="bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">
+                    Add Country
+                </button>
+            </div>
+            <div id="country-dropdown" class="dropdown-menu absolute left-0 w-full mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
+        </section>
+
+      <!-- Form to Submit Country to User -->
+        <form id="addCountryForm" method="POST" action="/add_country">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" id="country-name" name="country_name" value="">
+        </form>
+    </div>
+
         <!-- Countries Table -->
         <section class="p-6 space-y-10">
             <h2 class="text-2xl md:text-3xl font-semibold text-center text-gray-400">
                 Countries You Are Tracking
             </h2>
 
-            {% if countries %}
-                <div class="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for country in countries %}
-                        <a href="{{ url_for('country_details', country_name=country) }}" class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-                            <h3 class="text-xl font-medium text-gray-200">{{ country }}</h3>
-                        </a>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-center text-gray-400">You are not current tracking any countries!</p>
-            {% endif %}
+            <table id="country-table" class="table-auto w-full bg-gray-800 rounded-lg shadow-md">
+                <thead>
+                    <tr>
+                        <th class="p-3 text-left text-gray-300">Country Name</th>
+                        <th class="p-3 text-left text-gray-300">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if countries %}
+                        {% for country in countries %}
+                            <tr>
+                                <!-- Make the country name clickable -->
+                                <td class="p-3 text-gray-400">
+                                    <a href="{{ url_for('country_details', country_name=country) }}" class="text-indigo-500 hover:text-indigo-700">
+                                        {{ country['name'] }}
+                                    </a>
+                                </td>
+                                <td class="p-3">
+                                    <button
+                                        onclick="deleteCountry('{{ country.name }}')"
+                                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="2" class="p-3 text-center text-gray-400">You are not currently tracking any countries!</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </section>
     </div>
 {% endblock %}
