@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from app import process_query, get_satellite_data, app, user_info
 from database import (
     read_and_insert_csv,
@@ -261,3 +261,71 @@ def test_country_table_population(tmp_path, engine):
     assert (
         rows[0]["above_angle"] is not None
     ), "Expected country above_angle to be populated"
+
+@patch("requests.get")
+def test_get_satellites_over_country_valid(mock_get, client):
+    """
+    Test valid country with satellites found.
+    """
+    # Mock the API response
+    mock_get.return_value = Mock(
+        status_code=200,
+        json=Mock(return_value={"above": [{"satid": 25544, "satname": "ISS"}]}),
+    )
+    # Call the endpoint
+    response = client.get("/country?country=USA")
+    # Validate the response
+    assert response.status_code == 200
+    assert b"ISS" in response.data
+    assert b"USA" in response.data
+
+@patch("requests.get")
+def test_get_satellites_over_country_no_satellites(mock_get, client):
+    """
+    Test valid country with no satellites above.
+    """
+    # Mock the API response for no satellites
+    mock_get.return_value = Mock(
+        status_code=200,
+        json=Mock(return_value={"above": []}),
+    )
+    # Call the endpoint
+    response = client.get("/country?country=USA")
+    # Validate the response
+    assert response.status_code == 200
+    assert b"No satellites currently above this country" in response.data
+
+
+def test_get_satellites_over_country_invalid_country(client):
+    """
+    Test invalid country not present in the database.
+    """
+    response = client.get("/country?country=InvalidCountry")
+    assert response.status_code == 404
+    assert b"Country not found in database" in response.data
+
+@patch("requests.get")
+def test_get_satellites_over_country_api_failure(mock_get, client):
+    """
+    Test API failure while fetching satellites data.
+    """
+    # Mock a failed API response
+    mock_get.return_value = Mock(status_code=500)
+    # Call the endpoint
+    response = client.get("/country?country=USA")
+    # Validate the response
+    assert response.status_code == 500
+    assert b"Failed to retrieve satellite data from API" in response.data
+
+@patch("requests.get")
+def test_get_satellites_over_country_api_key_missing(mock_get, client):
+    """
+    Test when the API key is missing from environment variables.
+    """
+    # Temporarily remove the API key
+    with patch.dict(os.environ, {"API_KEY": ""}):
+        response = client.get("/country?country=USA")
+        assert response.status_code == 500
+        assert b"API key is missing in environment variables" in response.data
+
+
