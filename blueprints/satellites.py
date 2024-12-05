@@ -3,7 +3,7 @@ import requests
 import sqlite3
 import os
 
-from utils import (
+from blueprints.utils import (
     get_observer_location,
     generateSatData,
     fetch_satellite_image

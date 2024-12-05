@@ -25,7 +25,7 @@
         <div id="satellite-form">
         <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
             <h3 class="text-lg md:text-xl font-medium text-gray-200">Search by Satellite</h3>
-            <form action="/satellite" method="GET" class="flex flex-col items-center justify-center space-y-4 mt-4">
+            <form action="{{ url_for('satellites.satellite') }}" method="GET" class="flex flex-col items-center justify-center space-y-4 mt-4">
                 <div class="relative w-full md:w-auto">
                     <input
                         type="text"
@@ -51,7 +51,7 @@
         <div id="country-form" class="hidden">
         <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
             <h3 class="text-lg md:text-xl font-medium text-gray-200">Search by Country</h3>
-            <form action="/country" method="GET" class="flex flex-col items-center justify-center space-y-4 mt-4">
+            <form action="{{ url_for('country.get_satellites_over_country') }}" method="GET" class="flex flex-col items-center justify-center space-y-4 mt-4">
                 <div class="relative w-full md:w-auto">
                     <input
                         type="text"
@@ -112,4 +112,3 @@
 </script>
 
 {% endblock %}
-
