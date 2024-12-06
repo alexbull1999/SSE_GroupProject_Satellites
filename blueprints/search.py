@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect, url_for
+
 from database import (
     find_satellites_by_name,
     find_country_by_name,
@@ -28,16 +29,6 @@ def country_search():
 
 @search_bp.route("/country/<country_name>", methods=["GET"])
 def country_details(country_name):
-    # for now placeholder. update with sermila code
-    return f"Details for country: {country_name} (this is a placeholder) "
-
-
-
-
-
-
-
-
-
-
+    # Redirect to country page
+    return redirect(url_for("country.get_satellites_over_country", country=country_name))
 
