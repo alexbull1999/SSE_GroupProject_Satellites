@@ -52,7 +52,7 @@
                          <tr>
                             <!-- Make the satellite name clickable -->
                             <td class="p-3 text-gray-400">
-                                <a href="{{ url_for('satellite', name=satellite.name) }}" class="text-indigo-500 hover:text-indigo-700">
+                                <a href="{{ url_for('satellites.satellite', name=satellite.name) }}" class="text-indigo-500 hover:text-indigo-700">
                                     {{ satellite.name }}
                                 </a>
                             </td>
@@ -126,7 +126,7 @@
                             <tr>
                                 <!-- Make the country name clickable -->
                                 <td class="p-3 text-gray-400">
-                                    <a href="{{ url_for('country_details', country_name=country) }}" class="text-indigo-500 hover:text-indigo-700">
+                                    <a href="{{ url_for('search.country_details', country_name=country) }}" class="text-indigo-500 hover:text-indigo-700">
                                         {{ country['name'] }}
                                     </a>
                                 </td>
