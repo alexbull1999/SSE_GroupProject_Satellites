@@ -86,9 +86,9 @@
     <!-- Satellites Table -->
     <section class="p-6 space-y-10">
         <h3 class="text-2xl md:text-3xl font-semibold text-center text-gray-400">Satellites You Are Tracking</h3>
-        <div class="mx-auto max-w-4xl grid satellites-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="mx-auto max-w-4xl grid satellites-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center items-center">
             {% for satellite in satellites %}
-                <div class="w-68 bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-between">
+                <div class="w-[272px] max-w-full bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-center mx-auto">
                     <a href="{{ url_for('satellite', name=satellite.name) }}" class="flex-1 text-left">
                         <h3 class="text-xl font-medium text-gray-600"> {{ satellite.name }}</h3>
                         <p class="text-gray-400">ID: {{ satellite.id }}</p>
@@ -110,9 +110,9 @@
      <!-- Countries Table -->
     <section class="p-6 space-y-10">
         <h3 class="text-2xl md:text-3xl font-semibold text-center text-gray-400">Countries You Are Tracking</h3>
-            <div class="mx-auto max-w-4xl grid countries-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="mx-auto max-w-4xl grid countries-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center items-center">
                 {% for country in countries %}
-                    <div class="w-60 bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-between">
+                    <div class="w-60 bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-center mx-auto">
                         <a href="/country?country={{ country['name'] }}" class="flex-1 text-left">
                             <h3 class="text-xl font-medium text-gray-600"> {{ country['name'] }}</h3>
                         </a>
