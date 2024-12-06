@@ -44,10 +44,14 @@ def test_satellite_search(client):
 
 def test_invalid_search(client):
     """Test for non-existent satellite search."""
-    response = client.get("/satellite?name=non-existent%20satellite")
-    assert response.status_code == 404
-    # UPDATE HST TO MATCH NEW HTML PAGE
-    assert b"404 Not Found" in response.data
+    response = client.get(
+        "/satellite?name=No-satellite", follow_redirects=False
+    )
+
+    # Confirm it performs an HTTP 302 redirect
+    assert response.status_code == 302
+    # Confirm the redirect leads to the /404 route
+    assert "/404" in response.headers["Location"]
 
 
 def test_clickable_satellite(client):

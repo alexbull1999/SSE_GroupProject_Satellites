@@ -51,6 +51,11 @@ def login_page():
     return render_template("login.html")
 
 
+@app.route("/404")
+def not_found():
+    return render_template("notFound.html"), 404
+
+
 @app.route("/satellite", methods=["GET"])
 def satellite():
     input_satellite = request.args.get("name")
@@ -139,7 +144,7 @@ def satellite():
                 next_pass=next_pass,
             )
         else:
-            return "404 Not Found", 404
+            return redirect(url_for("not_found"))
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -159,7 +164,7 @@ def satellite_by_id(satellite_id):
         satellite_data = response.json()
         data = generateSatData(image_url, satellite_data)
         return render_template("satellite.html", satellite=data)
-    return "404 Not Found", 404
+    return redirect(url_for("not_found"))
 
 
 def process_query(query):
@@ -244,7 +249,7 @@ def get_satellites_over_country():
             )
 
         else:
-            return "Country not found in database", 404
+            return redirect(url_for("not_found"))
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

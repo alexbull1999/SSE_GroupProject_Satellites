@@ -5,14 +5,23 @@
     <h2 class="text-2xl md:text-3xl font-semibold text-center text-gray-400">
         Satellites Over {{ country }}
     </h2>
+
     {% if satellites %}
-        <div class="mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Container for the grid -->
+        <div class="mx-auto max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+
             {% for sat in satellites %}
-                <a href="{{ url_for('satellite_by_id', satellite_id=sat.id)}}" class="max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center">
-                    <h3 class="text-xl font-medium text-gray-200">{{ sat.name }}</h3>
+                <!-- Satellite item -->
+                <a href="{{ url_for('satellite_by_id', satellite_id=sat.id)}}" class="w-full max-w-xs bg-gray-800 p-4 rounded-lg shadow-lg text-center flex flex-col items-center justify-center">
+
+                    <!-- Satellite name -->
+                    <h3 class="text-xl font-medium text-gray-200 mb-2">{{ sat.name }}</h3>
+                    <!-- Satellite ID -->
                     <p class="text-gray-400">ID: {{ sat.id }}</p>
+
                 </a>
             {% endfor %}
+
         </div>
     {% else %}
         <p class="text-center text-gray-400">No satellites currently over {{ country }}.</p>
