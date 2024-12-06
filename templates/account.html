@@ -4,149 +4,151 @@
     <!-- Welcome message and user details -->
     <div class="container mx-auto p-6">
         <h2 class="text-2xl md:text-3xl font-semibold text-center text-gray-400">Welcome, {{ username }}!</h2>
-        <!-- Search and Add Satellite Section -->
-        <section class="mt-6">
-            <h3 class="text-2xl font-semibold text-indigo-400 mb-4">Add Satellites to Track</h3>
-            <div class="flex gap-4">
-                <!-- Hidden field for username Keep this rob!! -->
-                <input type="hidden" name="username" value="{{ username }}">
+        <div class="container mx-auto p-6">
+            <!-- Flex container to place search sections side by side -->
+            <div class="flex justify-center gap-32 items-start">
+                <!-- Search and Add Satellite Section -->
+                <section class="w-1/3 mt-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-center" style="color: #DC143C;">Add Satellites to Track</h3>
 
-                <!-- Search Bar -->
-                <input
-                    type="text"
-                    id="search-bar"
-                    placeholder="Enter satellite name"
-                    oninput="searchSatellite()"
-                    name="name"
-                    autocomplete="off"
-                    class="flex-1 px-3 py-2 rounded text-gray-800"
-                />
-                <button
-                    onclick="addSatelliteToTracking()"
-                    class="bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">
-                    Add Satellite
-                </button>
+                    <div class="flex gap-4 items-center">
+                        <!-- Hidden field for username -->
+                        <input type="hidden" name="username" value="{{ username }}">
+
+                        <!-- Search Bar -->
+                        <input
+                            type="text"
+                            id="search-bar"
+                            placeholder="Enter satellite name"
+                            oninput="searchSatellite()"
+                            name="name"
+                            autocomplete="off"
+                            class="flex-1 px-3 py-2 rounded text-gray-800"
+                        />
+                        <button
+                            onclick="addSatelliteToTracking()"
+                            class="bg-crimson hover:bg-dark-crimson text-white py-2 px-4 rounded">
+                            Add Satellite
+                        </button>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div id="dropdown" class="dropdown-menu absolute mt-1 bg-white text-gray-800 shadow-lg rounded-lg hidden inline-block"></div>
+                </section>
+
+                <!-- Search and Add Country Section -->
+                <section class="w-1/3 mt-6">
+                    <h3 class="text-2xl font-semibold mb-4 text-center" style="color: #DC143C;">Add Countries to Track</h3>
+
+                    <div class="flex gap-4 items-center">
+                        <!-- Hidden field for username -->
+                        <input type="hidden" name="username" value="{{ username }}">
+
+                        <!-- Search Bar -->
+                        <input
+                            type="text"
+                            id="country-search-bar"
+                            placeholder="Enter country name"
+                            oninput="searchCountry()"
+                            name="name"
+                            autocomplete="off"
+                            class="flex-1 px-3 py-2 rounded text-gray-800"
+                        />
+                        <button
+                            onclick="addCountryToTracking()"
+                            class="bg-crimson hover:bg-dark-crimson text-white py-2 px-4 rounded">
+                            Add Country
+                        </button>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div id="country-dropdown" class="dropdown-menu absolute mt-1 bg-white text-gray-800 shadow-lg rounded-lg hidden inline-block"></div>
+                </section>
             </div>
-            <div id="dropdown" class="dropdown-menu absolute left-0 w-full mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
-        </section>
 
-      <!-- Form to Submit Satellite to User -->
-        <form id="addSatelliteForm" method="POST" action="/add_satellite">
-            <input type="hidden" name="username" value="{{ username }}">
-            <input type="hidden" id="satellite-id" name="satellite_id" value="">
-        </form>
-    </div>
-
-        <!-- Satellites Table -->
-        <section class="p-6 space-y-10">
-            <h3 class="text-2xl md:text-3xl font-semibold text-center text-gray-400">Satellites You Are Tracking</h3>
-            <table class="table-auto w-full bg-gray-800 rounded-lg shadow-md">
-                <thead>
-                    <tr>
-                        <th class="p-3 text-left text-gray-300">Satellite Name</th>
-                        <th class="p-3 text-left text-gray-300">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for satellite in satellites %}
-                         <tr>
-                            <!-- Make the satellite name clickable -->
-                            <td class="p-3 text-gray-400">
-                                <a href="{{ url_for('satellite', name=satellite.name) }}" class="text-indigo-500 hover:text-indigo-700">
-                                    {{ satellite.name }}
-                                </a>
-                            </td>
-                            <td class="p-3">
-                                <button
-                                    onclick="deleteSatellite('{{ satellite.name }}')"
-                                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                                >
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="1" class="p-3 text-center text-gray-400">No satellites being tracked.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-
-    <!-- Search and Add Country Section -->
-        <section class="mt-6">
-            <h3 class="text-2xl font-semibold text-indigo-400 mb-4">Add Countries to Track</h3>
-            <div class="flex gap-4">
-                <!-- Hidden field for username Keep this rob!! -->
+            <!-- Hidden Forms -->
+            <form id="addSatelliteForm" method="POST" action="/add_satellite">
                 <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" id="satellite-id" name="satellite_id" value="">
+            </form>
 
-                <!-- Search Bar -->
-                <input
-                    type="text"
-                    id="country-search-bar"
-                    placeholder="Enter country name"
-                    oninput="searchCountry()"
-                    name="name"
-                    autocomplete="off"
-                    class="flex-1 px-3 py-2 rounded text-gray-800"
-                />
-                <button
-                    onclick="addCountryToTracking()"
-                    class="bg-indigo-500 hover:bg-indigo-700 text-white py-2 px-4 rounded">
-                    Add Country
-                </button>
+            <form id="addCountryForm" method="POST" action="/add_country">
+                <input type="hidden" name="username" value="{{ username }}">
+                <input type="hidden" id="country-name" name="country_name" value="">
+            </form>
+        </div>
+    </div>
+
+    <!-- Satellites Table -->
+    <section class="p-6 space-y-10">
+        <h3 class="text-2xl md:text-3xl font-semibold text-center text-gray-400">Satellites You Are Tracking</h3>
+        <div class="mx-auto max-w-4xl grid satellites-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for satellite in satellites %}
+                <div class="w-68 bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-between">
+                    <a href="{{ url_for('satellite', name=satellite.name) }}" class="flex-1 text-left">
+                        <h3 class="text-xl font-medium text-gray-600"> {{ satellite.name }}</h3>
+                        <p class="text-gray-400">ID: {{ satellite.id }}</p>
+                    </a>
+                    <button
+                        onclick="deleteSatellite('{{ satellite.name }}')"
+                        class="text-red-500 hover:text-red-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>
+                    </button>
+                </div>
+            {% else %}
+                <p class="text-center text-gray-800">You're not currently tracking any satellites!</p>
+            {% endfor %}
+        </div>
+    </section>
+
+     <!-- Countries Table -->
+    <section class="p-6 space-y-10">
+        <h3 class="text-2xl md:text-3xl font-semibold text-center text-gray-400">Countries You Are Tracking</h3>
+            <div class="mx-auto max-w-4xl grid countries-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for country in countries %}
+                    <div class="w-60 bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-between">
+                        <a href="/country?country={{ country['name'] }}" class="flex-1 text-left">
+                            <h3 class="text-xl font-medium text-gray-600"> {{ country['name'] }}</h3>
+                        </a>
+                        <button
+                            onclick="deleteCountry('{{ country.name }}')"
+                            class="text-red-500 hover:text-red-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                        </button>
+                    </div>
+                {% else %}
+                    <p class="text-center text-gray-800">You're not currently tracking any countries!</p>
+                {% endfor %}
             </div>
-            <div id="country-dropdown" class="dropdown-menu absolute left-0 w-full mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
-        </section>
+    </section>
 
-      <!-- Form to Submit Country to User -->
-        <form id="addCountryForm" method="POST" action="/add_country">
-            <input type="hidden" name="username" value="{{ username }}">
-            <input type="hidden" id="country-name" name="country_name" value="">
-        </form>
-    </div>
+    <style>
+        .dropdown-menu {
+            position: absolute;
+            background: white;
+            box-shadow: 0 0 8px rgba(0,0,0,0.2);
+            max-width: 100%;
+            overflow: hidden;
+            z-index: 1000;
+        }
 
-        <!-- Countries Table -->
-        <section class="p-6 space-y-10">
-            <h2 class="text-2xl md:text-3xl font-semibold text-center text-gray-400">
-                Countries You Are Tracking
-            </h2>
+        .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
 
-            <table id="country-table" class="table-auto w-full bg-gray-800 rounded-lg shadow-md">
-                <thead>
-                    <tr>
-                        <th class="p-3 text-left text-gray-300">Country Name</th>
-                        <th class="p-3 text-left text-gray-300">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if countries %}
-                        {% for country in countries %}
-                            <tr>
-                                <!-- Make the country name clickable -->
-                                <td class="p-3 text-gray-400">
-                                    <a href="{{ url_for('country_details', country_name=country) }}" class="text-indigo-500 hover:text-indigo-700">
-                                        {{ country['name'] }}
-                                    </a>
-                                </td>
-                                <td class="p-3">
-                                    <button
-                                        onclick="deleteCountry('{{ country.name }}')"
-                                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="2" class="p-3 text-center text-gray-400">You are not currently tracking any countries!</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </section>
-    </div>
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+        .bg-crimson {
+            background-color: #DC143C; /* Crimson */
+        }
+        .hover\:bg-dark-crimson:hover {
+            background-color: #B01030; /* Slightly darker crimson */
+        }
+    </style>
 {% endblock %}
