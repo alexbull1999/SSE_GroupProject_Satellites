@@ -1,115 +1,129 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!-- Main Search Section within a single card -->
-<div class="w-4/5 sm:w-2/3 lg:w-1/2 mx-auto mt-10">
+<div class="w-4/5 sm:w-1/3 lg:w-2/5 mx-auto mt-24">
     <!-- White background, rounded corners, and shadow -->
     <div class="bg-white p-8 rounded-lg shadow-lg text-center">
-        <!-- Buttons to toggle between search forms -->
-        <div class="flex justify-center space-x-4 mb-6">
-            <button
-                id="satellite-button"
-                class="px-4 py-2 bg-[#DC143C] text-white rounded-lg hover:bg-red-700"
-                onclick="toggleSearchForm('satellite')">
-                Search by Satellite
-            </button>
-            <button
-                id="country-button"
-                class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-[#DC143C]"
-                onclick="toggleSearchForm('country')">
-                Search by Country
-            </button>
-        </div>
+        <!-- Satellite Form (initially visible) -->
+        <div id="satellite-form" class="mb-6">
+            <h3 class="text-2xl md:text-3xl font-bold text-gray-600 mb-6">Search by Satellite</h3>
 
-        <!-- Satellite Search Form (initially visible) -->
-        <div id="satellite-form">
-        <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
-            <h3 class="text-lg md:text-xl font-medium text-gray-200">Search by Satellite</h3>
-            <form action="/satellite" method="GET" class="flex flex-col items-center justify-center space-y-4 mt-4">
-                <div class="relative w-full md:w-auto">
+            <form action="/satellite" method="GET" class="flex flex-col items-center justify-center space-y-6 mt-4">
+                <div class="w-2/3 mx-auto relative">
                     <input
                         type="text"
                         id="search-bar"
                         placeholder="Enter satellite name"
                         name="name"
                         autocomplete="off"
-                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300"
+                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300 box-border"
                         oninput="searchSatellite()"
                     />
-                    <div id="dropdown" class="dropdown-menu absolute left-0 w-full mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
+                    <!-- Dropdown element for satellites -->
+                    <div id="dropdown" class="dropdown-menu absolute left-0 mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
                 </div>
                 <button type="submit"
-                        class="w-full md:w-2/3 bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                        class="w-2/3 mt-2 bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
                     Search
                 </button>
             </form>
         </div>
-        </div>
 
+        <!-- Country Form (initially hidden) -->
+        <div id="country-form" class="hidden mb-6">
+            <h3 class="text-2xl md:text-3xl font-bold text-gray-600 mb-6">Search by Country</h3>
 
-        <!-- Country Search Form (initially hidden) -->
-        <div id="country-form" class="hidden">
-        <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
-            <h3 class="text-lg md:text-xl font-medium text-gray-200">Search by Country</h3>
-            <form action="/country" method="GET" class="flex flex-col items-center justify-center space-y-4 mt-4">
-                <div class="relative w-full md:w-auto">
+            <form action="/country" method="GET" class="flex flex-col items-center justify-center space-y-6 mt-4">
+                <div class="w-2/3 mx-auto relative">
                     <input
                         type="text"
                         id="country-search-bar"
                         placeholder="Enter country name"
                         name="country"
                         autocomplete="off"
-                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300"
+                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300 box-border"
                         oninput="searchCountry()"
                     />
-                    <div id="country-dropdown" class="dropdown-menu absolute left-0 w-full mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
+                    <!-- Dropdown element for countries -->
+                    <div id="country-dropdown" class="dropdown-menu absolute left-0 mt-2 bg-white text-gray-800 shadow-lg rounded-lg"></div>
                 </div>
                 <button type="submit"
-                        class="w-full md:w-2/3 bg-green-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                        class="w-2/3 mt-2 bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
                     Search
                 </button>
             </form>
         </div>
     </div>
+
+    <!-- Toggle Buttons placed below the white card -->
+    <div class="flex justify-center mt-8">
+        <button onclick="toggleForm('satellite')" id="satellite-btn"
+                class="btn-toggle bg-crimson text-white px-4 py-2 rounded mx-2">
+            Search by Satellite
+        </button>
+        <button onclick="toggleForm('country')" id="country-btn"
+                class="btn-toggle bg-gray-300 text-gray-800 px-4 py-2 rounded mx-2">
+            Search by Country
+        </button>
+    </div>
 </div>
 
 <script>
-    // Function to toggle between the search forms
-    function toggleSearchForm(formType) {
-        // Hide both forms initially
+    let isSatelliteVisible = true;
+
+    function toggleForm(formType) {
         const satelliteForm = document.getElementById('satellite-form');
         const countryForm = document.getElementById('country-form');
-
-        // Get the buttons
-        const satelliteButton = document.getElementById('satellite-button');
-        const countryButton = document.getElementById('country-button');
+        const satelliteBtn = document.getElementById('satellite-btn');
+        const countryBtn = document.getElementById('country-btn');
 
         if (formType === 'satellite') {
-            // Show satellite form and hide country form
             satelliteForm.classList.remove('hidden');
             countryForm.classList.add('hidden');
-
-            // Change button colors
-            satelliteButton.classList.add('bg-[#DC143C]', 'hover:bg-red-700');
-            satelliteButton.classList.remove('bg-gray-700', 'hover:bg-gray-500');
-
-            countryButton.classList.add('bg-gray-700', 'hover:bg-gray-500');
-            countryButton.classList.remove('bg-[#DC143C]', 'hover:bg-red-700');
-        } else if (formType === 'country') {
-            // Show country form and hide satellite form
+            satelliteBtn.classList.add('bg-crimson');
+            satelliteBtn.classList.remove('bg-gray-300');
+            satelliteBtn.classList.remove('text-gray-800');
+            satelliteBtn.classList.add('text-white');
+            countryBtn.classList.remove('bg-crimson');
+            countryBtn.classList.add('bg-gray-300');
+            countryBtn.classList.add('text-gray-800');
+            countryBtn.classList.remove('text-white');
+        } else {
             countryForm.classList.remove('hidden');
             satelliteForm.classList.add('hidden');
+            countryBtn.classList.add('bg-crimson');
+            countryBtn.classList.remove('bg-gray-300');
+            countryBtn.classList.remove('text-gray-800');
+            countryBtn.classList.add('text-white');
+            satelliteBtn.classList.remove('bg-crimson');
+            satelliteBtn.classList.add('bg-gray-300');
+            satelliteBtn.classList.add('text-gray-800');
+            satelliteBtn.classList.remove('text-white');
 
-            // Change button colors
-            countryButton.classList.add('bg-[#DC143C]', 'hover:bg-red-700');
-            countryButton.classList.remove('bg-gray-700', 'hover:bg-gray-500');
-
-            satelliteButton.classList.add('bg-gray-700', 'hover:bg-gray-500');
-            satelliteButton.classList.remove('bg-[#DC143C]', 'hover:bg-red-700');
         }
+        isSatelliteVisible = !isSatelliteVisible;
     }
-
 </script>
 
-{% endblock %}
+<style>
+    .btn-toggle {
+        transition: background-color 0.3s ease;
+    }
 
+    .btn-toggle:hover {
+        opacity: 0.9;
+    }
+
+    .btn-toggle:active {
+        transform: scale(0.95);
+    }
+
+    .bg-crimson {
+        background-color: #DC143C; /* Crimson */
+    }
+    .hover\:bg-dark-crimson:hover {
+        background-color: #B01030; /* Slightly darker crimson */
+    }
+</style>
+
+{% endblock %}
