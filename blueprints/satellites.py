@@ -6,10 +6,12 @@ import os
 from blueprints.utils import (
     get_observer_location,
     generateSatData,
-    fetch_satellite_image
+    fetch_satellite_image,
 )
 
 satellites_bp = Blueprint("satellites", __name__, url_prefix="/satellites")
+
+
 @satellites_bp.route("/", methods=["GET"])
 def satellite():
     input_satellite = request.args.get("name")

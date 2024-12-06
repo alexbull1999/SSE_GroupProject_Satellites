@@ -5,6 +5,7 @@ import ephem
 import math
 import pycountry
 
+
 def process_query(query):
     if query.lower() == "moon":
         return "Moon made of cheese"
@@ -106,6 +107,7 @@ def generateSatData(image_url, satellite_data):
     data["id"] = satellite_data["info"]["satid"]
     return data
 
+
 # Helper function to get satellite name by id.
 def get_satellite_by_id(satellite_id):
     connection = sqlite3.connect("app_database.db")
@@ -179,6 +181,7 @@ def fetch_satellite_image(satellite_name):
         "https://wmo.int/sites/default/files/2023-03/AdobeStock_580430822.jpeg"
     )
 
+
 def get_observer_location():
     """Fetches the observer's latitude and longitude based on
     their public API"""
@@ -191,4 +194,3 @@ def get_observer_location():
     except Exception as e:
         print(f"Error fetching location: {e}")
         return None
-

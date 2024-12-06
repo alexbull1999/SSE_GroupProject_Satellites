@@ -6,6 +6,7 @@ from database import (
 
 login_bp = Blueprint("login", __name__, url_prefix="/login")
 
+
 @login_bp.route("/create_account", methods=["POST"])
 def create_account():
     data = request.get_json()

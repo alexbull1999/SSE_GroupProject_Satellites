@@ -5,7 +5,8 @@ from database import (
     find_country_by_name,
 )
 
-search_bp = Blueprint('search', __name__)
+search_bp = Blueprint("search", __name__)
+
 
 # route to implement the suggested search in index.html
 @search_bp.route("/search", methods=["GET"])
@@ -30,5 +31,6 @@ def country_search():
 @search_bp.route("/country/<country_name>", methods=["GET"])
 def country_details(country_name):
     # Redirect to country page
-    return redirect(url_for("country.get_satellites_over_country", country=country_name))
-
+    return redirect(
+        url_for("country.get_satellites_over_country", country=country_name)
+    )

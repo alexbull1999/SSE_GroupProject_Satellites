@@ -5,6 +5,7 @@ import os
 
 country_bp = Blueprint("country", __name__, url_prefix="/country")
 
+
 @country_bp.route("/", methods=["GET"])
 def get_satellites_over_country():
     """
@@ -86,4 +87,3 @@ def get_satellites_over_country():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-

@@ -1,4 +1,11 @@
-from flask import Blueprint,  render_template, request, jsonify, redirect, url_for
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    jsonify,
+    redirect,
+    url_for,
+)
 from database import (
     add_country_to_user,
     add_satellite_to_user,
@@ -10,6 +17,7 @@ from database import (
 )
 
 account_bp = Blueprint("account", __name__)
+
 
 @account_bp.route("/account/<username>")
 def account(username):
