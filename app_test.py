@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from app import process_query, get_satellite_data, app
+from app import app
 from database import (
     read_and_insert_csv,
     init_db,
@@ -12,6 +12,7 @@ import polars as pl
 import os
 from models import satellite_table as get_satellite_table
 from models import country_table as get_country_table
+from blueprints.utils import process_query, get_satellite_data
 
 
 def test_knows_about_moon():
