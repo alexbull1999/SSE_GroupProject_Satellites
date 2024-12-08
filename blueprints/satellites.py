@@ -106,13 +106,10 @@ def satellite():
         return jsonify({"error": str(e)}), 500
 
 
-@satellites_bp.route("/<int:satellite_id>/<path:satellite_name>", methods=["GET"])
+@satellites_bp.route("/<int:satellite_id>/<path:satellite_name>",
+                     methods=["GET"])
 def satellite_by_id(satellite_id, satellite_name):
-
     try:
-        #debugging logs
-        print(f"Fetching data for {satellite_id}, {satellite_name}")
-
         # Fetch observer location
         observer_location = get_observer_location()
         if not observer_location:
@@ -180,19 +177,3 @@ def satellite_by_id(satellite_id, satellite_name):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-"""
-    # Get the image URL from the query parameter
-    image_url = request.args.get("image_url")
-    # Search for the satellite by ID
-    start_url = "https://api.n2yo.com/rest/v1/satellite/tle/"
-    end_url = "&apiKey=LMFEWE-UWEWBT-WF7CWC-5DK0"
-    url = f"{start_url}{satellite_id}{end_url}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        satellite_data = response.json()
-        data = generateSatData(image_url, satellite_data)
-        return render_template("satellite.html", satellite=data)
-    return "404 Not Found", 404
-"""
