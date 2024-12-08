@@ -1,4 +1,9 @@
-from flask import Blueprint, render_template, request, jsonify, url_for, redirect
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    jsonify,
+)
 import requests
 import sqlite3
 import os
@@ -18,7 +23,12 @@ def satellite():
 
     if not input_satellite:
         error_message = "Satellite name is required"
-        return render_template("notFound.html", error_code=400, error_message=error_message), 400
+        return (
+            render_template(
+                "notFound.html", error_code=400, error_message=error_message
+            ),
+            400,
+        )
 
     # Connect to the database and fetch corresponding satellite ID
     try:
@@ -101,15 +111,25 @@ def satellite():
                 next_pass=next_pass,
             )
         else:
-            error_message = f"Sorry we can't find the satellite, f{input_satellite}"
-            return render_template("notFound.html", error_code=404, error_message=error_message), 404
+            error_message = (
+                f"Sorry we can't find the satellite, f{input_satellite}"
+            )
+            return (
+                render_template(
+                    "notFound.html",
+                    error_code=404,
+                    error_message=error_message,
+                ),
+                404,
+            )
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-@satellites_bp.route("/<int:satellite_id>/<path:satellite_name>",
-                     methods=["GET"])
+@satellites_bp.route(
+    "/<int:satellite_id>/<path:satellite_name>", methods=["GET"]
+)
 def satellite_by_id(satellite_id, satellite_name):
     try:
         # Fetch observer location
@@ -157,9 +177,7 @@ def satellite_by_id(satellite_id, satellite_name):
         # Extract next visible pass
         next_pass = None
         if passes_data.get("passes"):
-            next_pass = passes_data["passes"][0][
-                "startUTC"
-            ]  # Get pass time
+            next_pass = passes_data["passes"][0]["startUTC"]  # Get pass time
 
         # Fetch satellite image
         image_url = fetch_satellite_image(satellite_name)
