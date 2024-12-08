@@ -1,91 +1,81 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!-- Main Login Section -->
-<div class="w-4/5 sm:w-2/3 lg:w-1/2 mx-auto mt-10">
+    <div class="w-4/5 sm:w-1/3 lg:w-2/5 mx-auto mt-24">
     <!-- White background, rounded corners, and shadow -->
     <div class="bg-white p-8 rounded-lg shadow-lg text-center">
-        <!-- Buttons to toggle between login and create account -->
-        <div class="flex justify-center space-x-4 mb-6">
+
+        <!-- Create Account Form (initially hidden) -->
+        <div id="create-form" class="hidden mb-6">
+            <h3 class="text-2xl md:text-3xl font-bold text-gray-600 mb-6">Create Account</h3>
+            <input
+                type="text"
+                id="create-username"
+                placeholder="Enter username"
+                name="username"
+                class="w-2/3 mx-auto px-3 py-2 rounded text-gray-800 border border-gray-300 mb-4"
+            />
             <button
-                id="login-button"
-                class="px-4 py-2 bg-[#DC143C] text-white rounded-lg hover:bg-red-700"
-                onclick="toggleForm('login')">
-                Login
-            </button>
-            <button
-                id="create-button"
-                class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-[#DC143C]"
-                onclick="toggleForm('create')">
+                type="submit"
+                class="w-2/3 mx-auto bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded mt-2"
+                id="create-account-btn"
+                onclick="createAccount()">
                 Create Account
             </button>
-        </div>
-        <!-- Create Account Form (initially hidden) -->
-        <div id="create-form" class="hidden">
-            <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
-                <h3 class="text-lg md:text-xl font-medium text-gray-200">Create Account</h3>
 
-                    <input
-                        type="text"
-                        id="create-username"
-                        placeholder="Enter username"
-                        name="username"
-                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300"
-                    />
-                    <button type="submit"
-                            class="w-full md:w-2/3 bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded"
-                            id="create-account-btn" onclick="createAccount()">
-                        Create Account
-                    </button>
-
+            <!-- Text Prompt -->
+            <div id="create-toggle-text" class="mt-4 text-gray-500 text-sm">
+                <span>Already have an account? </span>
+                <span onclick="toggleForm('login')" class="cursor-pointer font-semibold" style="color: #DC143C;">
+                    Login
+                </span>
             </div>
         </div>
 
         <!-- Login Form (initially visible) -->
-        <div id="login-form">
-            <div class="bg-gray-800 p-6 rounded-lg shadow-md w-full lg:w-1/2 mx-auto text-center">
-                <h3 class="text-lg md:text-xl font-medium text-gray-200">Login</h3>
-                    <input
-                        type="text"
-                        id="login-username"
-                        placeholder="Enter your username"
-                        name="username"
-                        class="w-full px-3 py-2 rounded text-gray-800 border border-gray-300"
-                    />
-                    <button type="submit"
-                            class="w-full md:w-2/3 bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
-                            id="login-btn" onclick="login()">
-                        Login
-                    </button>
+        <div id="login-form" class="mb-6">
+            <h3 class="text-2xl md:text-3xl font-bold text-gray-600 mb-6">Login</h3>
+            <input
+                type="text"
+                id="login-username"
+                placeholder="Enter your username"
+                name="username"
+                class="w-2/3 mx-auto px-3 py-2 rounded text-gray-800 border border-gray-300 mb-4"
+            />
+            <button
+                type="submit"
+                class="w-2/3 mx-auto bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded mt-2"
+                id="login-btn"
+                onclick="login()"
+            >
+                Login
+            </button>
+
+            <!-- Text Prompt -->
+            <div id="login-toggle-text" class="mt-4 text-gray-500 text-sm">
+                <span>Don't have an account? </span>
+                <span onclick="toggleForm('create')" class="cursor-pointer font-semibold" style="color: #DC143C;">
+                    Create account
+                </span>
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
-    // Function to toggle between the login and create account forms
+    let isLoginVisible = true;
+
     function toggleForm(formType) {
-        if (formType === 'login') {
-            // Show login form and hide create account form
-            document.getElementById('login-form').classList.remove('hidden');
-            document.getElementById('create-form').classList.add('hidden');
-            // Change button colors
-            document.getElementById('login-button').classList.add('bg-[#DC143C]');
-            document.getElementById('login-button').classList.remove('bg-gray-700');
-            document.getElementById('create-button').classList.add('bg-gray-700');
-            document.getElementById('create-button').classList.remove('bg-[#DC143C]');
-        } else if (formType === 'create') {
-            // Show create account form and hide login form
+        if (formType === 'create') {
             document.getElementById('create-form').classList.remove('hidden');
             document.getElementById('login-form').classList.add('hidden');
-            // Change button colors
-            document.getElementById('create-button').classList.add('bg-[#DC143C]');
-            document.getElementById('create-button').classList.remove('bg-gray-700');
-            document.getElementById('login-button').classList.add('bg-gray-700');
-            document.getElementById('login-button').classList.remove('bg-[#DC143C]');
+        } else {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('create-form').classList.add('hidden');
         }
+        isLoginVisible = !isLoginVisible;
     }
-
 </script>
 
 {% endblock %}

@@ -28,7 +28,7 @@ function login() {
     const username = document.getElementById('login-username').value;
 
     // Make a POST request to log the user in
-    fetch('/login/', {
+    fetch('/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -36,11 +36,12 @@ function login() {
         body: JSON.stringify({ username: username }),
     })
     .then(response => {
+        console.log(response)
         if (response.ok) {
             // Redirect to the account page after successful login
             window.location.href = `/account/${username}`;
         } else {
-            alert("Invalid username");
+            alert(`Invalid username ${username}`);
         }
     })
     .catch(error => console.error('Error:', error));

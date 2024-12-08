@@ -83,7 +83,8 @@ def get_satellites_over_country():
             )
 
         else:
-            return "Country not found in database", 404
+            error_message = f"Sorry we can't find the country, f{input_country}"
+            return render_template("notFound.html", error_code=404, error_message=error_message), 404
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

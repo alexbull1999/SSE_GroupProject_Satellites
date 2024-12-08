@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, url_for, redirect
 import requests
 import sqlite3
 import os
@@ -17,7 +17,8 @@ def satellite():
     input_satellite = request.args.get("name")
 
     if not input_satellite:
-        return "Satellite name is required", 400
+        error_message = "Satellite name is required"
+        return render_template("notFound.html", error_code=400, error_message=error_message), 400
 
     # Connect to the database and fetch corresponding satellite ID
     try:
@@ -100,7 +101,8 @@ def satellite():
                 next_pass=next_pass,
             )
         else:
-            return "404 Not Found", 404
+            error_message = f"Sorry we can't find the satellite, f{input_satellite}"
+            return render_template("notFound.html", error_code=404, error_message=error_message), 404
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

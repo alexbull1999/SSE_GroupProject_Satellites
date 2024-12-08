@@ -63,10 +63,9 @@ def test_satellite_search(client, mock_db):
 
 def test_invalid_search(client):
     """Test for non-existent satellite search."""
-    response = client.get("/satellite?name=non-existent%20satellite")
+    response = client.get("/satellite?name=No-satellite")
+    # Confirm it performs an HTTP 404 status code response
     assert response.status_code == 404
-    # UPDATE HST TO MATCH NEW HTML PAGE
-    assert b"404 Not Found" in response.data
 
 
 def test_clickable_satellite(client, mock_db):
@@ -308,9 +307,8 @@ def test_fetch_satellite_image_missing_api_key(mock_requests_get, mock_getenv):
     mock_getenv.side_effect = lambda key: None  # Mock missing API keys
     result = fetch_satellite_image("NonExistent")
     assert (
-        result
-        == "https://wmo.int/sites/default/files/"
-           "2023-03/AdobeStock_580430822.jpeg"
+        result == "https://wmo.int/sites/default/files/"
+        "2023-03/AdobeStock_580430822.jpeg"
     )
 
 
@@ -355,9 +353,8 @@ def test_fetch_satellite_image_google_api_failure(
 
     result = fetch_satellite_image("TestSatellite")
     assert (
-        result
-        == "https://wmo.int/sites/default/files/"
-           "2023-03/AdobeStock_580430822.jpeg"
+        result == "https://wmo.int/sites/default/files/"
+        "2023-03/AdobeStock_580430822.jpeg"
     )
 
 

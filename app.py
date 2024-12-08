@@ -38,3 +38,8 @@ def lookup():
 @app.route("/login_page")
 def login_page():
     return render_template("login.html")
+
+
+@app.route("/not_found")
+def not_found():
+    return render_template("notFound.html")

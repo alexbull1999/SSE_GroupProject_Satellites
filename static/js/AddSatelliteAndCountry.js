@@ -77,27 +77,31 @@ function deleteSatellite(satelliteName) {
 
 // Function to update the satellite list/table
 function updateSatellitesTable(satellites) {
-    const tableBody = document.querySelector("tbody");
-    tableBody.innerHTML = satellites.map(satellite => `
-        <tr>
-            <td class="p-3 text-gray-400">
-                <a href="/satellite/${satellite.id}" class="text-indigo-500 hover:text-indigo-700">
-                    ${satellite.name}
-                </a>
-            </td>
-            <td class="p-3">
-                <button onclick="deleteSatellite('${satellite.name}')">Delete</button>
-            </td>
-        </tr>
+    const container = document.querySelector(".satellites-grid"); // Select the grid container
+    container.innerHTML = satellites.map(satellite => `
+        <div class="w-[272px] max-w-full bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-center mx-auto">
+            <a href="/satellite/${satellite.name}" class="flex-1 text-left">
+                <h3 class="text-xl font-medium text-gray-600">${satellite.name}</h3>
+                <p class="text-gray-400">ID: ${satellite.id}</p>
+            </a>
+            <button
+                onclick="deleteSatellite('${satellite.name}')"
+                class="text-red-500 hover:text-red-700">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                </svg>
+            </button>
+        </div>
     `).join("");
-     // Reattach event listeners after the table is updated
-     const deleteButtons = tableBody.querySelectorAll("button");
-     deleteButtons.forEach(button => {
-         button.addEventListener("click", (e) => {
-             const satelliteName = e.target.closest('tr').querySelector('a').textContent;
-             deleteSatellite(satelliteName);
-         });
-     });
+
+    // Attach event listeners to the delete buttons
+    const deleteButtons = container.querySelectorAll("button");
+    deleteButtons.forEach(button => {
+        button.addEventListener("click", (e) => {
+            const satelliteName = e.target.closest('div').querySelector('h3').textContent;
+            deleteSatellite(satelliteName);
+        });
+    });
 }
 
 
@@ -182,18 +186,22 @@ function deleteCountry(countryName) {
 
 // Function to update the country list/table
 function updateCountriesTable(countries) {
-    const tableBody = document.querySelector("#country-table tbody");
+    const tableBody = document.querySelector(".countries-grid");
     tableBody.innerHTML = countries.map(country => `
-        <tr>
-            <td class="p-3 text-gray-400">
-                <a href="/country/${country.name}" class="text-indigo-500 hover:text-indigo-700">
-                    ${country.name}
-                </a>
-            </td>
-            <td class="p-3">
-                <button onclick="deleteCountry('${country.name}')">Delete</button>
-            </td>
-        </tr>
+        <div class="w-60 bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-center mx-auto">
+            <a onclick="getCountryDetails('${country.name}')" class="flex-1 text-left">
+                <h3 class="text-xl font-medium text-gray-600">
+                ${country.name}
+                </h3>
+            </a>
+            <button
+                onclick="deleteCountry('${country.name}')"
+                class="text-red-500 hover:text-red-700">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                </svg>
+            </button>
+        </div>
     `).join("");
      // Attach event listeners for delete buttons
     const deleteButtons = tableBody.querySelectorAll(".delete-button");
