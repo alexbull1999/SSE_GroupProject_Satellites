@@ -64,7 +64,7 @@
     const observerLongitude = {{ observer_lng }};
     const nextPassUTC = {{ next_pass | default('null', true) }}; //Convert UTC time
 
-    //Helper function to convert DMS to decimal
+    //Helper function to convert DMS to decimal so that it works with the map initialization rqmts.
     function dmsToDecimal(dms) {
         const [degrees, minutes, seconds] = dms.split(":").map(parseFloat);
         const decimal = Math.abs(degrees) + (minutes/60) + (seconds / 3600);

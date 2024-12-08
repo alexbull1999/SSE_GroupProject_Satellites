@@ -1,4 +1,7 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+
+import requests
+
 from app import app
 from database import (
     read_and_insert_csv,
@@ -12,7 +15,12 @@ import polars as pl
 import os
 from models import satellite_table as get_satellite_table
 from models import country_table as get_country_table
-from blueprints.utils import process_query, get_satellite_data
+from blueprints.utils import (
+    process_query,
+    get_satellite_data,
+    fetch_satellite_image,
+    generateSatData,
+)
 
 
 def test_knows_about_moon():
@@ -23,8 +31,18 @@ def test_knows_about_moon():
 @pytest.fixture
 def client():
     # Setting up of test client
+    app.testing = True
     with app.test_client() as client:
         yield client
+
+
+# Mock database connection for tests
+@pytest.fixture
+def mock_db(mocker):
+    mock_conn = mocker.patch("sqlite3.connect")
+    mock_cursor = MagicMock()
+    mock_conn.return_value.cursor.return_value = mock_cursor
+    return mock_cursor
 
 
 def test_homepage(client):
@@ -35,11 +53,11 @@ def test_homepage(client):
     assert b"Track To The Future" in response.data
 
 
-def test_satellite_search(client):
+def test_satellite_search(client, mock_db):
     """Test the satellite search."""
-    response = client.get("/satellite?name=HST")
+    mock_db.fetchone.return_value = (20580, "HST")
+    response = client.get("/?name=HST")
     assert response.status_code == 200
-    # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
 
 
@@ -51,84 +69,59 @@ def test_invalid_search(client):
     assert b"404 Not Found" in response.data
 
 
-def test_clickable_satellite(client):
+def test_clickable_satellite(client, mock_db):
     """test the clickable satellite on landing page"""
-    response = client.get("/satellite/20580")
+    mock_db.fetchone.return_value = (20580, "HST")
+    response = client.get("/satellites/20580/HST")
     assert response.status_code == 200
-    # UPDATE HST TO MATCH NEW HTML PAGE
     assert b"HST" in response.data
 
 
-def test_clickable_country(client):
+@patch("requests.get")
+def test_clickable_country(mock_requests_get, client, mock_db):
     """test the clicking on a country in user page"""
-    response = client.get("/country/USA")
+    # Mock database response
+    mock_db.fetchone.return_value = (
+        "USA",
+        40.7128,
+        -74.0060,
+        0,
+        0,
+        500,
+    )  # Country, lat, lng, radius
+
+    # Mock API response
+    mock_requests_get.return_value.status_code = 200
+    mock_requests_get.return_value.json.return_value = {
+        "above": [{"satid": 12345, "satname": "HST"}]
+    }
+
+    # Send the request
+    response = client.get("/country/?country=USA")
+    print(response.data.decode())  # Debug rendered content
+
+    # Assertions
     assert response.status_code == 200
-    assert b"USA" in response.data
-
-
-@pytest.mark.skip
-def test_create_new_user(client):
-    # simulating creating a new user
-    response = client.post(
-        "/create_account",
-        json=({"username": "new_user"}),
-        follow_redirects=False,
-    )
-
-    # Check JSON response code
-    assert response.status_code == 200
-    assert b'{"message":"Account created successfully"}\n' in response.data
-    # check the user is in the user_info database
-    # assert "new_user" in user_info
-
-
-@pytest.mark.skip
-def test_create_account_existing_user(client):
-    # simulate creating an account
-    response = client.post("/create_account", json={"username": "test_user"})
-    assert response.status_code == 200  # Account created successfully
-
-    # Simulate trying to create the same account again
-    response = client.post("/create_account", json={"username": "test_user"})
-    assert response.status_code == 400  # Should return error for existing user
-    assert b"User already exists" in response.data
+    assert b"Satellites Over" in response.data
+    assert b"HST" in response.data
 
 
 def test_login_valid_user(client):
     """test for a valid user"""
-    response = client.post("/login", json={"username": "AlexB"})
+    response = client.post(
+        "/login", json={"username": "AlexB"}, follow_redirects=True
+    )
     assert response.status_code == 200
     assert b"Login successful" in response.data
 
 
 def test_login_invalid_user(client):
     """test for an invalid user"""
-    response = client.post("/login", json={"username": "nonexistent_use"})
+    response = client.post(
+        "/login", json={"username": "nonexistent_use"}, follow_redirects=True
+    )
     assert response.status_code == 400
     assert b"User does not exist" in response.data
-
-
-@pytest.mark.skip
-def test_account_display_valid_user(client):
-    """Test for a valid user with multiple satellites & countries"""
-    # Send a POST requst to login
-    response = client.get("/account/AlexB")
-    assert response.status_code == 200
-    assert b"Welcome, AlexB"
-    assert b"Countries You Are Tracking" in response.data
-    assert b"USA" in response.data
-    assert b"India" in response.data
-    assert b"ISS" in response.data
-    assert b"HST" in response.data
-
-
-@pytest.mark.skip
-def test_account_display_valid_user_no_countries_or_satellites(client):
-    """Test for a valid user with no satellites & countries tracked"""
-    response = client.get("/account/RobL")
-    assert response.status_code == 200
-    assert b"No satellites being tracked" in response.data
-    assert b"No countries being tracked" in response.data
 
 
 @patch("requests.get")
@@ -266,3 +259,122 @@ def test_country_table_population(tmp_path, engine):
     assert (
         rows[0]["above_angle"] is not None
     ), "Expected country above_angle to be populated"
+
+
+@patch("sqlite3.connect")
+def test_satellite_missing_name(mock_connect, client):
+    """Test for missing satellite name."""
+    response = client.get("/satellites/?name=")
+    assert response.status_code == 400
+    assert b"Satellite name is required" in response.data
+
+
+@patch("requests.get")
+@patch("blueprints.utils.get_observer_location")
+@patch("sqlite3.connect")
+def test_satellite_not_found(
+    mock_connect, mock_get_observer_location, mock_requests_get, client
+):
+    """Test for satellite not found in the database."""
+    mock_get_observer_location.return_value = (
+        10.0,
+        20.0,
+    )  # Mock observer location
+    mock_cursor = MagicMock()
+    mock_connect.return_value.cursor.return_value = mock_cursor
+    mock_cursor.fetchone.return_value = None  # No satellite found
+
+    response = client.get("/satellite/?name=NonExistentSatellite")
+    assert response.status_code == 404
+    assert b"404 Not Found" in response.data
+
+
+@patch("os.getenv")
+@patch("requests.get")
+def test_fetch_satellite_image_curated(mock_requests_get, mock_getenv):
+    """Test fetching curated satellite image."""
+    # Test with a curated image (e.g., "HST")
+    result = fetch_satellite_image("HST")
+    assert (
+        result
+        == "https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg"
+    )
+
+
+@patch("os.getenv")
+@patch("requests.get")
+def test_fetch_satellite_image_missing_api_key(mock_requests_get, mock_getenv):
+    """Test fetching satellite image when Google API key is missing."""
+    mock_getenv.side_effect = lambda key: None  # Mock missing API keys
+    result = fetch_satellite_image("NonExistent")
+    assert (
+        result
+        == "https://wmo.int/sites/default/files/"
+           "2023-03/AdobeStock_580430822.jpeg"
+    )
+
+
+@patch("os.getenv")
+@patch("requests.get")
+def test_fetch_satellite_image_google_api_success(
+    mock_requests_get, mock_getenv
+):
+    """Test fetching satellite image with Google API success."""
+    # Mock Google API Key and CX
+    mock_getenv.side_effect = lambda key: (
+        "test_key" if key == "GOOGLE_API_KEY" else "test_cx"
+    )
+
+    # Mock Google API response
+    mock_requests_get.return_value = MagicMock(
+        status_code=200,
+        json=lambda: {
+            "items": [{"link": "http://example.com/satellite_image.jpg"}]
+        },
+    )
+
+    result = fetch_satellite_image("TestSatellite")
+    assert result == "http://example.com/satellite_image.jpg"
+
+
+@patch("os.getenv")
+@patch("requests.get")
+def test_fetch_satellite_image_google_api_failure(
+    mock_requests_get, mock_getenv
+):
+    """Test fetching satellite image with Google API failure."""
+    # Mock Google API Key and CX
+    mock_getenv.side_effect = lambda key: (
+        "test_key" if key == "GOOGLE_API_KEY" else "test_cx"
+    )
+
+    # Mock API request failure
+    mock_requests_get.side_effect = requests.RequestException(
+        "Google API failure"
+    )
+
+    result = fetch_satellite_image("TestSatellite")
+    assert (
+        result
+        == "https://wmo.int/sites/default/files/"
+           "2023-03/AdobeStock_580430822.jpeg"
+    )
+
+
+def test_generateSatData_empty_tle():
+    """Test generateSatData with empty TLE data."""
+    satellite_data = {
+        "tle": "",
+        "info": {
+            "satname": "TestSatellite",
+            "satid": 12345,
+        },
+    }
+
+    image_url = "http://example.com/image.jpg"
+    result = generateSatData(image_url, satellite_data)
+
+    assert result["name"] == "TestSatellite"
+    assert result["id"] == 12345
+    assert result["image_url"] == image_url
+    assert "location" not in result  # Location should be absent
