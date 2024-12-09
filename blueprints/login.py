@@ -33,15 +33,10 @@ def create_account():
 
 @login_bp.route("/", methods=["POST"])
 def login():
-    print("Login endpoint reached")
     data = request.get_json()
-    print(f"Data received: {data}")
     username = data.get("username")
-    print(f"Username: {username}")
 
     if not check_username_exists(username):
-        print("Username does not exist")
         return jsonify({"error": "User does not exist"}), 400
 
-    print("Login successful")
     return jsonify({"message": "Login successful"}), 200

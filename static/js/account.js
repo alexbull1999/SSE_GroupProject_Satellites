@@ -36,11 +36,12 @@ function login() {
         body: JSON.stringify({ username: username }),
     })
     .then(response => {
-        console.log(response)
         if (response.ok) {
+            console.log(response)
             // Redirect to the account page after successful login
             window.location.href = `/account/${username}`;
         } else {
+            console.log(response)
             alert(`Invalid username ${username}`);
         }
     })
