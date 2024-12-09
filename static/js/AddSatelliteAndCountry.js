@@ -80,7 +80,7 @@ function updateSatellitesTable(satellites) {
     const container = document.querySelector(".satellites-grid"); // Select the grid container
     container.innerHTML = satellites.map(satellite => `
         <div class="w-[272px] max-w-full bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-center mx-auto">
-            <a href="/satellites/${satellite.name}" class="flex-1 text-left">
+            <a href="/satellites/?name=${satellite.name}" class="flex-1 text-left">
                 <h3 class="text-xl font-medium text-gray-600">${satellite.name}</h3>
                 <p class="text-gray-400">ID: ${satellite.id}</p>
             </a>
