@@ -189,7 +189,7 @@ function updateCountriesTable(countries) {
     const tableBody = document.querySelector(".countries-grid");
     tableBody.innerHTML = countries.map(country => `
         <div class="w-60 bg-white py-8 px-4 rounded-lg shadow-lg flex items-center justify-center mx-auto">
-            <a onclick="getCountryDetails('${country.name}')" class="flex-1 text-left">
+            <a href="/country/?country=${country.name}" class="flex-1 text-left">
                 <h3 class="text-xl font-medium text-gray-600">
                 ${country.name}
                 </h3>
