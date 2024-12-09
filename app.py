@@ -21,7 +21,7 @@ register_blueprints(app)
 
 if __name__ == "__main__":
     init_db(DATABASE_URL)
-    populate_country_table("countries.csv", engine)
+    populate_country_table("csvfiles/countries.csv", engine)
     app.run(debug=True)
 
 

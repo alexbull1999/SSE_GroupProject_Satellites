@@ -178,16 +178,17 @@ if __name__ == "__main__":
     init_db(DATABASE_URL)
 
     csv_files = [
-        "active1.csv",
-        "noaa1.csv",
-        "weather1.csv",
-        "science1.csv",
-        "galileo1.csv",
-        "starlink1.csv",
+        "csvfiles/active1.csv",
+        "csvfiles/noaa1.csv",
+        "csvfiles/weather1.csv",
+        "csvfiles/science1.csv",
+        "csvfiles/galileo1.csv",
+        "csvfiles/starlink1.csv",
     ]
     process_multiple_csv(csv_files)
 
-    populate_country_table("countries.csv", "country_area.csv", engine)
+    populate_country_table("csvfiles/countries.csv",
+                           "csvfiles/country_area.csv", engine)
 
 
 # Helper function to get satellite name by id

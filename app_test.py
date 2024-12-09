@@ -241,7 +241,7 @@ def test_country_table_population(tmp_path, engine):
     )
     df.write_csv(csv_path)
 
-    populate_country_table(csv_path, "country_area.csv", engine)
+    populate_country_table(csv_path, "csvfiles/country_area.csv", engine)
 
     with engine.connect() as connection:
         result = connection.execute(select(get_country_table)).mappings()
