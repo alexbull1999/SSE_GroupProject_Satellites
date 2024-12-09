@@ -28,7 +28,7 @@ function login() {
     const username = document.getElementById('login-username').value;
 
     // Make a POST request to log the user in
-    fetch('/login', {
+    fetch('/login/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
